@@ -1,0 +1,26 @@
+{
+  "name": "nondeliverybot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "server": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "dayjs": "^1.11.7",
+    "moment": "^2.29.4",
+    "mongoose": "^6.7.1",
+    "node-calendar-js": "^1.0.3",
+    "node-geocoder": "^4.2.0",
+    "node-telegram-bot-api": "^0.59.0",
+    "nodemon": "^2.0.20",
+    "telegram-bot-calendar": "^1.0.7",
+    "uuid": "^9.0.0"
+  }
+}

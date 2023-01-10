@@ -1,0 +1,114 @@
+{
+  "error_messages": {
+    "auth_401": {
+      "en": "Authentication denied",
+      "ru": "Аутентификация отклонена",
+      "uz": "Autentifikatsiya rad etildi"
+    },
+    "auth_403": {
+      "en": "Authentication denied",
+      "ru": "Аутентификация отклонена",
+      "uz": "Autentifikatsiya rad etildi"
+    },
+    "admin_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "admin_404": {
+      "en": "Admin not found",
+      "ru": "Админ не найден",
+      "uz": "Admin topilmadi"
+    },
+    "advertising_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "advertising_404": {
+      "en": "Advertising not found",
+      "ru": "Реклама не найдена",
+      "uz": "Reklama topilmadi"
+    },
+    "branch_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "branch_404": {
+      "en": "Branch not found",
+      "ru": "Филиал не найден",
+      "uz": "Filial topilmadi"
+    },
+    "employee_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "employee_404": {
+      "en": "Employee not found",
+      "ru": "Сотрудник не найден",
+      "uz": "Xodim topilmadi"
+    },
+    "feedback_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "feedback_404": {
+      "en": "Feedback not found",
+      "ru": "Отзыв не найден",
+      "uz": "Fikr-mulohaza topilmadi"
+    },
+    "item_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "item_404": {
+      "en": "Item not found",
+      "ru": "Товар не найден",
+      "uz": "Mahsulot topilmadi"
+    },
+    "order_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "order_404": {
+      "en": "Order not found",
+      "ru": "Заказ не найден",
+      "uz": "Buyurtma topilmadi"
+    },
+    "product_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "product_404": {
+      "en": "Product not found",
+      "ru": "Товар не найден",
+      "uz": "Mahsulot topilmadi"
+    },
+    "user_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "user_404": {
+      "en": "User not found",
+      "ru": "Пользователь не найден",
+      "uz": "Foydalanuvchi topilmadi"
+    },
+    "work_403": {
+      "en": "You are not allowed to this action",
+      "ru": "Вам не разрешено это действие",
+      "uz": "Sizga bu harakatga ruxsat berilmagan"
+    },
+    "work_404": {
+      "en": "Source not found",
+      "ru": "Источник не найден",
+      "uz": "Manbaa topilmadi"
+    }
+  }
+}

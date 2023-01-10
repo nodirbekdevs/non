@@ -1,0 +1,278 @@
+{
+  "messages": {
+    "admin_getAll_200": {
+      "en": "All admins have been got",
+      "ru": "Все админы набраны",
+      "uz": "Barcha adminlar qabul qilindi"
+    },
+    "admin_getOne_200": {
+      "en": "Admin have been got",
+      "ru": "Админ был получен",
+      "uz": "Admin qabul qilindi"
+    },
+    "admin_created_200": {
+      "en": "Admin have been created",
+      "ru": "Админ создан",
+      "uz": "Admin yaratildi"
+    },
+    "admin_updated_200": {
+      "en": "Admin have been updated",
+      "ru": "Админ обновлен",
+      "uz": "Admin yangilandi"
+    },
+    "admin_deleted_200": {
+      "en": "Admin have been deleted",
+      "ru": "Админ был удален",
+      "uz": "Admin o'chirildi"
+    },
+    "admin_loggedIn_200": {
+      "en": "Admin have been logged in",
+      "ru": "Админ авторизовался",
+      "uz": "Admin tizimga kirdi"
+    },
+
+    "advertising_getAll_200": {
+      "en": "All advertisements have been got",
+      "ru": "Вся реклама получена",
+      "uz": "Barcha reklamalar olingan"
+    },
+    "advertising_getOne_200": {
+      "en": "Advertising have been got",
+      "ru": "Реклама была получена",
+      "uz": "Reklama qabul qilindi"
+    },
+    "advertising_created_200": {
+      "en": "Advertising have been created",
+      "ru": "Реклама была создана",
+      "uz": "Reklama yaratildi"
+    },
+    "advertising_updated_200": {
+      "en": "Advertising have been updated",
+      "ru": "Реклама была обновлена",
+      "uz": "Reklama yangilandi"
+    },
+    "advertising_deleted_200": {
+      "en": "Advertising have been deleted",
+      "ru": "Реклама была удалена",
+      "uz": "Reklama o'chirildi"
+    },
+
+    "branch_getAll_200": {
+      "en": "All branches have been got",
+      "ru": "Все филиалы получили",
+      "uz": "Barcha filiallar qabul qilindi"
+    },
+    "branch_getOne_200": {
+      "en": "Branch have been got",
+      "ru": "Филиал был получен",
+      "uz": "Filial qabul qilindi"
+    },
+    "branch_created_200": {
+      "en": "Branch have been created",
+      "ru": "Филиал создан",
+      "uz": "Filial yaratildi"
+    },
+    "branch_updated_200": {
+      "en": "Branch have been updated",
+      "ru": "Филиал был обновлен",
+      "uz": "Filial yangilandi"
+    },
+    "branch_deleted_200": {
+      "en": "Branch have been deleted",
+      "ru": "Филиал был удален",
+      "uz": "Filial oʻchirildi"
+    },
+
+    "employee_getAll_200": {
+      "en": "All employees have been got",
+      "ru": "Все сотрудники получили",
+      "uz": "Barcha xodimlar qabul qilindi"
+    },
+    "employee_getOne_200": {
+      "en": "Employee have been got",
+      "ru": "Сотрудник был получен",
+      "uz": "Xodim qabul qilindi"
+    },
+    "employee_created_200": {
+      "en": "Employee have been created",
+      "ru": "Сотрудник был создан",
+      "uz": "Xodim yaratildi"
+    },
+    "employee_updated_200": {
+      "en": "Employee have been updated",
+      "ru": "Сотрудник был обновлен",
+      "uz": "Xodim yangilandi"
+    },
+    "employee_deleted_200": {
+      "en": "Employee have been deleted",
+      "ru": "Сотрудник удален",
+      "uz": "Xodim o'chirildi"
+    },
+    "employee_loggedIn_200": {
+      "en": "Employee have been logged in",
+      "ru": "Работник авторизовался",
+      "uz": "Xodim tizimga kirdi"
+    },
+
+    "feedback_getAll_200": {
+      "en": "All feedbacks have been got",
+      "ru": "Все отзывы получены",
+      "uz": "Barcha mulohazalar olindi"
+    },
+    "feedback_getOne_200": {
+      "en": "Feedback have been got",
+      "ru": "Получены отзывы",
+      "uz": "Mulohaza qabul qilindi"
+    },
+    "feedback_created_200": {
+      "en": "Feedback have been created",
+      "ru": "Отзыв был создан",
+      "uz": "Mulohaza yaratildi"
+    },
+    "feedback_updated_200": {
+      "en": "Feedback have been updated",
+      "ru": "Отзыв был обновлен",
+      "uz": "Mulohaza yangilandi"
+    },
+    "feedback_deleted_200": {
+      "en": "Feedback have been deleted",
+      "ru": "Отзыв был удален",
+      "uz": "Mulohaza o'chirildi"
+    },
+
+    "item_getAll_200": {
+      "en": "All items have been got",
+      "ru": "Все предметы получены",
+      "uz": "Barcha elementlar olindi"
+    },
+    "item_getOne_200": {
+      "en": "Item have been got",
+      "ru": "Товар получен",
+      "uz": "Element qabul qilindi"
+    },
+    "item_created_200": {
+      "en": "Item have been created",
+      "ru": "Товар создан",
+      "uz": "Element yaratildi"
+    },
+    "item_updated_200": {
+      "en": "Item have been updated",
+      "ru": "Товар был обновлен",
+      "uz": "Element yangilandi"
+    },
+    "item_deleted_200": {
+      "en": "Item have been deleted",
+      "ru": "Элемент был удален",
+      "uz": "Element oʻchirildi"
+    },
+
+    "order_getAll_200": {
+      "en": "All orders have been got",
+      "ru": "Все заказы получены",
+      "uz": "Barcha buyurtmalar qabul qilindi"
+    },
+    "order_getOne_200": {
+      "en": "Order have been got",
+      "ru": "Заказ был получен",
+      "uz": "Buyurtma qabul qilindi"
+    },
+    "order_created_200": {
+      "en": "Order have been created",
+      "ru": "Заказ создан",
+      "uz": "Buyurtma yaratildi"
+    },
+    "order_updated_200": {
+      "en": "Order have been updated",
+      "ru": "Заказ был обновлен",
+      "uz": "Buyurtma yangilandi"
+    },
+    "order_deleted_200": {
+      "en": "Order have been deleted",
+      "ru": "Заказ был удален",
+      "uz": "Buyurtma o'chirildi"
+    },
+
+    "product_getAll_200": {
+      "en": "All products have been got",
+      "ru": "Все товары получены",
+      "uz": "Barcha mahsulotlar qabul qilindi"
+    },
+    "product_getOne_200": {
+      "en": "Product have been got",
+      "ru": "Товар получен",
+      "uz": "Mahsulot qabul qilindi"
+    },
+    "product_created_200": {
+      "en": "Product have been created",
+      "ru": "Товар был создан",
+      "uz": "Mahsulot yaratildi"
+    },
+    "product_updated_200": {
+      "en": "Product have been updated",
+      "ru": "Товар обновлен",
+      "uz": "Mahsulot yangilandi"
+    },
+    "product_deleted_200": {
+      "en": "Product have been deleted",
+      "ru": "Товар удален",
+      "uz": "Mahsulot oʻchirildi"
+    },
+
+    "user_getAll_200": {
+      "en": "All users have been got",
+      "ru": "Все пользователи получили",
+      "uz": "Barcha foydalanuvchilar qabul qilindi"
+    },
+    "user_getOne_200": {
+      "en": "User have been got",
+      "ru": "Пользователь был получен",
+      "uz": "Foydalanuvchi qabul qilindi"
+    },
+    "user_created_200": {
+      "en": "User have been created",
+      "ru": "Пользователь создан",
+      "uz": "Foydalanuvchi yaratildi"
+    },
+    "user_updated_200": {
+      "en": "User have been updated",
+      "ru": "Пользователь был обновлен",
+      "uz": "Foydalanuvchi yangilandi"
+    },
+    "user_deleted_200": {
+      "en": "User have been deleted",
+      "ru": "Пользователь был удален",
+      "uz": "Foydalanuvchi oʻchirildi"
+    },
+    "user_loggedIn_200": {
+      "en": "User have been logged in",
+      "ru": "Пользователь авторизован",
+      "uz": "Foydalanuvchi tizimga kirdi"
+    },
+
+    "work_getAll_200": {
+      "en": "All sources have been got",
+      "ru": "Все источники получили",
+      "uz": "Barcha manbaalar qabul qilindi"
+    },
+    "work_getOne_200": {
+      "en": "Source have been got",
+      "ru": "Источники был получен",
+      "uz": "Manbaa qabul qilindi"
+    },
+    "work_created_200": {
+      "en": "Source have been created",
+      "ru": "Источник создан",
+      "uz": "Manbaa yaratildi"
+    },
+    "work_updated_200": {
+      "en": "Source have been updated",
+      "ru": "Источник был обновлен",
+      "uz": "Manbaa yangilandi"
+    },
+    "work_deleted_200": {
+      "en": "Source have been deleted",
+      "ru": "Источник был удален",
+      "uz": "Manbaa oʻchirildi"
+    }
+  }
+}
