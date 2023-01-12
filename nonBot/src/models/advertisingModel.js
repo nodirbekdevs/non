@@ -7,6 +7,7 @@ const Advertising = model('Advertising', new Schema({
   image: {type: String, default: ''},
   title: {type: String, default: ''},
   description: {type: String, default: ''},
+  is_send: {type: Boolean, default: false},
   step: {type: Number, default: 0},
   status: {type: String, enum: ['process', 'inactive', 'active', 'approved'], default: 'process'},
   created_at: {type: Date, default: Date.now}

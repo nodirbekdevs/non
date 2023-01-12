@@ -9,7 +9,7 @@ const User = model('User', new Schema({
   password: {type: String, default: ''},
   number: {type: String, default: ''},
   feedback: [{type: String, ref: 'Feedback', default: []}],
-  orders: [{type: String, ref: 'OrderItem', default: []}],
+  orders: [{type: String, ref: 'Order', default: []}],
   liked_products: [{type: String, ref: 'Product', default: []}],
   total_feedback: {type: Number, default: 0},
   total_orders: {type: Number, default: 0},

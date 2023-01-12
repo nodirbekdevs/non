@@ -6,7 +6,7 @@ const {Calendar} = require('node-calendar-js');
 const {getOrders, getOrder, makeOrder, updateOrder, deleteOrder} = require('../../controllers/orderController')
 const {getItems, getItem, makeItem, updateItem, deleteItem} = require('./../../controllers/itemController')
 const {getProducts, getProduct, updateProduct} = require('./../../controllers/productController')
-const {updateUser} = require('../../controllers/userController')
+const {getUser, updateUser} = require('../../controllers/userController')
 const {inline_calendar, time_button, product_keyboard, get_report, order_edit_keyboard} = require('./../../helpers/utils')
 
 let item_id, order_id, bread, order
@@ -60,14 +60,14 @@ const uos3 = async (bot, chat_id, _id, lang) => {
     const items = order.items
 
     if (items.length !== 0 && order.total_items !== 0) {
-      for (let i = 0; i < items.length; i++) item = await getItem({product: product.product_name, status: 'active'})
+      for (let i = 0; i < items.length; i++) {
+        item = await getItem({_id: items[i], order: order._id, product: product.product_name, step: 1, status: 'active'})
+      }
     }
   }
 
   if (item) await updateItem({_id: item._id}, {step: 0, status: 'process'})
-
   else if (!item) item = await makeItem(chat_id, product.product_name)
-
 
   if (lang === kb.language.uz) {
     message = `${product.product_name} dan nechta buyurtma berasiz`
@@ -155,9 +155,9 @@ const uos7 = async (bot, chat_id, _id, lang, text) => {
 
   await updateOrder({_id}, {step: 2})
 
-  const order = await getOrder({_id})
+  const order = await getOrder({_id}), items = order.items
 
-  for (let i = 0; i < order.items.length; i++) await updateItem({product: bread}, {step: 2})
+  for (let i = 0; i < items.length; i++) await updateItem({_id: items[i], author: chat_id, order: order._id, product: bread, step: 1, status: 'active'}, {step: 2})
 
   if (lang === kb.language.uz) {
     message = `${bread} ga yana qo'shamizmi yoki ayiramizmi ?`
@@ -176,10 +176,10 @@ const uos8 = async (bot, chat_id, _id, lang, text) => {
 
   await updateOrder({_id}, {step: 3})
 
-  const order = await getOrder({_id})
+  const order = await getOrder({_id}), items = order.items
 
-  for (let i = 0; i < order.items.length; i++) {
-    const item = await getItem({step: 2})
+  for (let i = 0; i < items.length; i++) {
+    const item = await getItem({_id: items[i], step: 2})
 
     if (item) {
       item.situation = text
@@ -209,17 +209,18 @@ const uos8 = async (bot, chat_id, _id, lang, text) => {
 }
 
 const uos9 = async (bot, chat_id, _id, lang, text) => {
-  let message, item_id
+  let message, item_id, order = await getOrder({_id})
 
-  let order = await getOrder({_id})
+  const user = await getUser({telegram_id: chat_id}), items = order.items
 
-  for (let i = 0; i < order.items.length; i++) {
+  for (let i = 0; i < items.length; i++) {
     let product_price, quantity, price
-    const item = await getItem({step: 2})
+    const item = await getItem({_id: items[i], step: 2})
 
     if (item) {
       product_price = item.price / item.quantity
       quantity = parseInt(text)
+      console.log(quantity)
       if (quantity < 0) quantity *= -1
       item_id = item._id
 
@@ -257,6 +258,13 @@ const uos9 = async (bot, chat_id, _id, lang, text) => {
             item_id = ""
 
             if (order.items.length === 0 && order.total_items === 0) {
+              const index = user.orders.indexOf(order._id)
+
+              if (index > -1) {
+                user.orders.slice(order._id, 1)
+                user.total_orders -= 1
+                await user.save()
+              }
               await deleteOrder({_id: order._id})
             }
           }
@@ -282,6 +290,14 @@ const uos9 = async (bot, chat_id, _id, lang, text) => {
             item_id = ""
 
             if (order.items.length === 0 && order.total_items === 0) {
+              const index = user.orders.indexOf(order._id)
+
+              if (index > -1) {
+                user.orders.slice(order._id, 1)
+                user.total_orders -= 1
+                await user.save()
+              }
+
               await deleteOrder({_id: order._id})
             }
           }
@@ -345,6 +361,19 @@ const uos10 = async (bot, chat_id, _id, lang, text) => {
 
 const uos11 = async (bot, chat_id, _id, lang) => {
   let message, kbb
+
+  const order = await getOrder({_id}), items = order.items, user = await getUser({telegram_id: order.author}),
+    index = user.orders.indexOf(order._id)
+
+  for (let i = 0; i < items.length; i++) {
+    await deleteItem({_id: [items[i]]})
+  }
+
+  if (index > -1) {
+    user.orders.slice(index)
+    user.total_orders -= 1
+    await user.save()
+  }
 
   await deleteOrder({_id})
 
@@ -472,7 +501,7 @@ const uos18 = async (bot, chat_id, _id, lang, text) => {
       await updateItem({_id: items[i]}, {step: 3, status: 'ordered'})
     }
 
-    report += 'Yangi buyurtma berildi'
+    report += '\n\nYangi buyurtma berildi'
 
     await bot.sendMessage(order.admin, report)
 
@@ -481,12 +510,11 @@ const uos18 = async (bot, chat_id, _id, lang, text) => {
     const order = await getOrder({_id}), items = order.items
 
     for (let i = 0; i < items.length; i++) {
-      await updateItem({_id: items[i]}, {step: 6, status: 'inactive'})
+      await deleteItem({_id: items[i]})
     }
 
-    order.step = 9
-    order.status = 'inactive'
-    await order.save()
+    await deleteOrder({_id})
+
     message = (lang === kb.language.uz) ? "Buyurtmangiz qabul qilinmadi" : "Ваш заказ не принят"
   }
 
@@ -497,9 +525,7 @@ const uos19 = async (bot, chat_id, lang, _id) => {
   let message
   const kbb = (lang === kb.language.uz) ? keyboard.user.orders.uz : keyboard.user.orders.ru, order = await getOrder({_id})
 
-  if (order) {
-    message = (lang === kb.language.uz) ? "Siz bu buyurtmani qabul qilib olgansiz" : "Вы приняли этот заказ"
-  } else {
+  if (order.status === 'active') {
     await updateOrder({_id}, {step: 13, attempt: 2, status: 'accepted'})
 
     const items = order.items
@@ -513,6 +539,8 @@ const uos19 = async (bot, chat_id, lang, _id) => {
     }
 
     message = (lang === kb.language.uz) ? "Buyurtmangizni qabul qilib olganingizdan xursandmiz!" : "Мы рады, что вы получили свой заказ!"
+  } else if (order.status === 'accepted') {
+    message = (lang === kb.language.uz) ? "Siz bu buyurtmani qabul qilib olgansiz" : "Вы приняли этот заказ"
   }
 
   await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb}})

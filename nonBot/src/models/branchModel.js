@@ -13,8 +13,10 @@ const Branch = model('Branch', new Schema({
   },
   employees: [{type: String, ref: 'Employee', default: []}],
   orders: [{type: String, ref: 'Order', default: []}],
+  feedback: [{type: String, ref: 'Feedback', default: []}],
   total_employees: {type: Number, default: 0},
   total_orders: {type: Number, default: 0},
+  total_feedback: {type: Number, default: 0},
   step: {type: Number, default: 0},
   status: {type: String, enum: ['process', 'inactive', 'active'], default: 'process'},
   created_at: {type: Date, default: Date.now}

@@ -3,7 +3,7 @@ const keyboard = require('../../helpers/keyboard')
 const {getProducts, getProduct, updateProduct} = require('../../controllers/productController')
 const {getUser, updateUser} = require('../../controllers/userController')
 const {uos3} = require('./ordersPage')
-const {product_keyboard} = require('./../../helpers/utils')
+const {product_keyboard, determine_the_rating} = require('./../../helpers/utils')
 
 const ups0 = async (bot, chat_id, lang) => {
   let message, kbb
@@ -37,21 +37,27 @@ const ups1 = async (bot, chat_id, lang) => {
 }
 
 const ups2 = async (bot, user, lang, text) => {
-  let message, clause, iltext
+  let message = '', clause, iltext
 
   const product = await getProduct({product_name: text}),
+    // rating = determine_the_rating(product) > 0 ? determine_the_rating(product) : 0,
     add_basket = (lang === kb.language.uz) ? kb.options.product.uz.add_basket : kb.options.product.ru.add_basket
 
   if (product) {
-    message = (lang === kb.language.uz) ? `
-        Nomi: ${product.product_name}
-        Tavsifi: ${product.description}
-        Narxi: ${product.price}
-    ` : `
-        Название: ${product.product_name}
-        Описания: ${product.description}
-        Цена: ${product.price}
-    `
+
+    if (lang === kb.language.uz) {
+      message += `Nomi: ${product.product_name}\n`
+      message += `Tavsifi: ${product.description}\n`
+      // message += `Reytingi - ${rating}\n`
+      message += `Sotilgani - ${product.num_of_sold}\n`
+      message += `Narxi: ${product.price}`
+    } else if (lang === kb.language.ru) {
+      message += `Название: ${product.product_name}\n`
+      message += `Описания: ${product.description}\n`
+      // message += `Рейтинг - ${rating}\n`
+      message += `Продано - ${product.num_of_sold}\n`
+      message += `Цена: ${product.price}`
+    }
 
     if (user.liked_products.includes(product._id)) {
       clause = 'REMOVE'
@@ -81,16 +87,22 @@ const ups3 = async (bot, chat_id, lang) => {
   if (user.total_liked_products > 0) {
     user.liked_products.map(async p => {
       const product = await getProduct({_id: p})
+        // rating = determine_the_rating(product) ? determine_the_rating(product) : 0
 
-      message = (lang === kb.language.uz) ? `
-        Nomi: ${product.product_name}
-        Tavsifi: ${product.description}
-        Narxi: ${product.price}
-      ` : `
-        Название: ${product.product_name}
-        Описания: ${product.description}
-        Цена: ${product.price}
-      `
+
+      if (lang === kb.language.uz) {
+        message += `Nomi: ${product.product_name}\n`
+        message += `Tavsifi: ${product.description}\n`
+        // message += `Reytingi - ${rating}\n`
+        message += `Sotilgani - ${product.num_of_sold}\n`
+        message += `Narxi: ${product.price}`
+      } else if (lang === kb.language.ru) {
+        message += `Название: ${product.product_name}\n`
+        message += `Описания: ${product.description}\n`
+        // message += `Рейтинг - ${rating}\n`
+        message += `Продано - ${product.num_of_sold}\n`
+        message += ` Цена: ${product.price}`
+      }
 
       await bot.sendPhoto(chat_id, product.image, {
         caption: message,

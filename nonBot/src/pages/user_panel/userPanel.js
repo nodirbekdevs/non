@@ -1,7 +1,5 @@
 const kb = require('./../../helpers/keyboard-buttons')
 const keyboard = require('./../../helpers/keyboard')
-// const dayjs = require('dayjs')
-// const weekOfYear = require('dayjs/plugin/weekOfYear')
 const {genSalt, hash} = require('bcrypt')
 const {mainPage} = require('./mainPage')
 const {userRegister} = require('./register')
@@ -18,19 +16,6 @@ let lang
 const userPanel = async (bot, message) => {
   let text, username = "", password = ""
   const telegram_id = message.from.id, first_name = message.from.first_name
-
-  // const date = new Date(), today = date.getDate() - 30, year = date.getFullYear() + 1, month = date.getMonth() -10, week = new Date(year, month, 1)
-  // dayjs.extend(weekOfYear);
-  // const day = `01-${month}-${year}`, days = dayjs(day).week(week).toDate()
-  // console.log(date)
-  // console.log(date.getDate())
-  // console.log(date.getDay())
-  // console.log(Math.ceil((date.getDate() - 1 - date.getDay()) / 7))
-  // // console.log(today)
-  // // console.log(year)
-  // // console.log(month)
-  // // console.log(week.getDay())
-  // // console.log(days)
 
   try {
     if (message) {
@@ -53,13 +38,19 @@ const userPanel = async (bot, message) => {
     const user = await getUser({telegram_id})
 
     if (!user && text === kb.start) {
+      let message = ''
+
       if (username) {
         const salt = await genSalt()
         password = await hash(username, salt)
       }
       await makeUser({telegram_id, username, password})
 
-      await bot.sendMessage(telegram_id, `Bo'timizga xush kelibsiz ${first_name}. Tilni tanlang \nДобро пожаловать ${first_name}. Выберите язык`, {
+      message += `Bo'timizga xush kelibsiz ${first_name}. <b>Tilni tanlang</b> \n`
+      message += `Добро пожаловать ${first_name}. <b>Выберите язык</b>`
+
+      await bot.sendMessage(telegram_id, message, {
+        parse_mode: 'HTML',
         reply_markup: {resize_keyboard: true, keyboard: keyboard.language, one_time_keyboard: true}
       })
     }

@@ -23,13 +23,7 @@ const urs1 = async (bot, chat_id, lang) => {
   const orders = await getOrders({author: chat_id})
 
   orders.map(async order => {
-    if (
-      order.status !== 'process' ||
-      order.status !== 'inactive' ||
-      order.status !== 'active' ||
-      order.status !== 'approved' ||
-      order.status !== 'out_of_delivery'
-    ) {
+    if (order.status !== 'process' || order.status !== 'inactive') {
       u_orders.push(order)
     }
   })
@@ -38,12 +32,12 @@ const urs1 = async (bot, chat_id, lang) => {
     u_orders.map(order => total += order.price)
 
     message = (lang === kb.language.uz)
-      ? `Siz ${total} lik non mahsulotimizni sotib olgansiz`
-      : `Вы приобрели ${total} наших хлебобулочных изделий`
+      ? `Siz ${total} lik non mahsulotlarimizga buyurtma bergansiz`
+      : `Вы заказали ${total} наших хлебобулочных изделий`
   } else if (u_orders.length <= 0) {
     message = (lang === kb.language.uz)
-      ? 'Sizga hali non mahsulotimizni sotib olmaansiz'
-      : 'Вы еще не купили наш хлеб'
+      ? 'Sizga hali non mahsulotlarimizni buyurtma bermagansiz'
+      : 'Вы еще не заказали наш хлебобулочных изделий'
   }
 
   await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb}})

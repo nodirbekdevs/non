@@ -18,12 +18,20 @@ bot.on('message', async message => {
   const query = {telegram_id: message.from.id, status: 'active'}, admin = await getAdmin(query), employee = await getEmployee(query),
     work = (await getWorks({}))[0]
 
+  console.log("Kevotti")
+
+  console.log(admin)
+  console.log(employee)
+
   try {
     if (admin) await adminPanel(bot, message, admin)
-    else if (employee) await employeePanel(bot, message, employee)
+    else if (employee) {
+      console.log("Kevotti")
+      await employeePanel(bot, message, employee)
+    }
     else if (work.type === "On") await userPanel(bot, message)
     if (work.type === "Off") await bot.sendMessage(message.from.id, work.description)
-
+    bot.stop
   } catch (e) {
     console.log(e + '')
   }
@@ -36,7 +44,7 @@ bot.on('callback_query', async query => {
     admin = await getAdmin(request), employee = await getEmployee(request)
 
   if (admin) {
-    if (phrase === "Reklamani jo'natish") await aas8(bot, telegram_id, id)
+    if (phrase === "SEND_AD") await aas8(bot, telegram_id, id)
     if (phrase === 'deliver') await aos3(bot, telegram_id, id)
   }
 

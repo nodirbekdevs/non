@@ -17,7 +17,7 @@ export class EmployeeStorage implements EmployeeRepository {
         }
     }
 
-    async findOne(query: Object): Promise<IEmployee> {
+    async findOne(query: object): Promise<IEmployee> {
         try {
             const employee = await Employee.findOne(query)
 

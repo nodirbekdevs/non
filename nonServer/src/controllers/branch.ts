@@ -105,10 +105,20 @@ export class BranchController {
 
         if (status === 'inactive') {
             if (branch.employees.length > 0) {
-                await storage.employee.updateMany({branch: branch._id}, {branch: '', status: 'inactive'})
+                await storage.employee.updateMany({branch: branch._id}, {status: 'inactive'})
             }
 
             await storage.admin.update({telegram_id: branch.admin}, {status: 'inactive'})
+        }
+
+        if (branch.status === 'inactive') {
+            if (status === 'active') {
+                if (branch.employees.length > 0) {
+                    await storage.employee.updateMany({branch: branch._id}, {status: 'active'})
+                }
+
+                await storage.admin.update({telegram_id: branch.admin}, {status: 'active'})
+            }
         }
 
         branch = await storage.branch.update({ _id }, req.body)

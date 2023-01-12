@@ -1,14 +1,12 @@
 const keyboard = require('./../../helpers/keyboard')
 const kb = require('./../../helpers/keyboard-buttons')
-const {updateAdmin} = require('../../controllers/adminController')
+const {getAdmin, updateAdmin} = require('../../controllers/adminController')
+const {bio} = require('./../../helpers/utils')
 
 let type
 
 const asst0 = async (bot, admin) => {
-  const message = `Ma'lumotlaringiz: \n \n Ismingiz - ${admin.name}.\n
-  Telefon raqamingiz - ${admin.number}. \n
-  Username - ${admin.username}. \n
-  Nimani o'zgartirmoqchisiz`
+  const message = bio(admin, 'ADMIN', '')
 
   await updateAdmin({telegram_id: admin.telegram_id}, {step: 1})
 
@@ -26,9 +24,13 @@ const asst1 = async (bot, chat_id) => {
 const asst2 = async (bot, chat_id, text) => {
   await updateAdmin({telegram_id: chat_id}, {name: text, step: 1})
 
+  const admin = await getAdmin({telegram_id: chat_id}), message = bio(admin, 'ADMIN', '')
+
   await bot.sendMessage(chat_id, "Ismingiz muvaffaqiyatli o'zgartirildi", {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.admin.settings}
   })
+
+  await bot.sendMessage(chat_id, message)
 }
 
 const asst3 = async (bot, chat_id) => {
@@ -40,9 +42,13 @@ const asst3 = async (bot, chat_id) => {
 const asst4 = async (bot, chat_id, text) => {
   await updateAdmin({telegram_id: chat_id}, {number: text, step: 1})
 
+  const admin = await getAdmin({telegram_id: chat_id}), message = bio(admin, 'ADMIN', '')
+
   await bot.sendMessage(chat_id, "Raqamingiz muvaffaqiyatli o'zgartirildi", {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.admin.settings}
   })
+
+  await bot.sendMessage(chat_id, message)
 }
 
 const adminSettings = async (bot, admin, text) => {

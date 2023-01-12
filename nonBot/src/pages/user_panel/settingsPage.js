@@ -1,24 +1,20 @@
 const keyboard = require('../../helpers/keyboard')
 const kb = require('../../helpers/keyboard-buttons')
-const {genSalt, hash} = require('bcrypt')
-const {updateUser} = require('../../controllers/userController')
+const {getUser, updateUser} = require('../../controllers/userController')
+const {bio} = require('./../../helpers/utils')
 
 let type
 
 const ust0 = async (bot, user, lang) => {
-  let message, kbb
 
-  if (lang === kb.language.uz) {
-    message = `Ma'lumotlaringiz: \n Ismingiz - ${user.name}. \n Telefon raqamingiz - ${user.number}. \n Username - ${user.username}. \n Nimani o'zgartirmoqchisiz`
-    kbb = keyboard.user.settings.uz
-  } else {
-    message = `Ваша информация: Ваше имя ${user.name}. Ваш номер телефона: ${user.number}. Что вы хотите изменить`
-    kbb = keyboard.user.settings.ru
-  }
+  const kbb = (lang === kb.language.uz) ? keyboard.user.settings.uz : keyboard.user.settings.ru,
+    message = bio(user, 'USER', lang)
 
   await updateUser({telegram_id: user.telegram_id}, {step: 5})
 
-  await bot.sendMessage(user.telegram_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb, one_time_keyboard: true}})
+  await bot.sendMessage(user.telegram_id, message,
+    {reply_markup: {resize_keyboard: true, keyboard: kbb, one_time_keyboard: true}}
+  )
 }
 
 const ust1 = async (bot, chat_id, lang) => {
@@ -36,6 +32,8 @@ const ust2 = async (bot, chat_id, lang, text) => {
 
   await updateUser({telegram_id: chat_id}, {name: text, step: 5})
 
+  const user = await getUser({telegram_id: chat_id}), report = bio(user, 'USER', lang)
+
   if (lang === kb.language.uz) {
     message = "Ismingiz muvaffaqiyatli o'zgartirildi"
     kbb = keyboard.user.settings.uz
@@ -44,13 +42,19 @@ const ust2 = async (bot, chat_id, lang, text) => {
     kbb = keyboard.user.settings.ru
   }
 
-  await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb, one_time_keyboard: true}})
+  await bot.sendMessage(chat_id, message, {
+    reply_markup: {resize_keyboard: true, keyboard: kbb, one_time_keyboard: true}
+  })
+
+  await bot.sendMessage(chat_id, report)
 }
 
 const ust3 = async (bot, chat_id, lang) => {
   await updateUser({telegram_id: chat_id}, {step: 6})
 
-  const message = (lang === kb.language.uz) ? "O'zgartirmoqchi bo'lgan raqamingizni kiriting" : "Введите номер, которое хотите изменить"
+  const message = (lang === kb.language.uz)
+    ? "O'zgartirmoqchi bo'lgan raqamingizni kiriting"
+    : "Введите номер, которое хотите изменить"
 
   await bot.sendMessage(chat_id, message)
 }
@@ -60,6 +64,8 @@ const ust4 = async (bot, chat_id, lang, text) => {
 
   await updateUser({telegram_id: chat_id}, {number: text, step: 5})
 
+  const user = await getUser({telegram_id: chat_id}), report = bio(user, 'USER', lang)
+
   if (lang === kb.language.uz) {
     message = "Raqamingiz muvaffaqiyatli o'zgartirildi"
     kbb = keyboard.user.settings.uz
@@ -68,7 +74,11 @@ const ust4 = async (bot, chat_id, lang, text) => {
     kbb = keyboard.user.settings.ru
   }
 
-  await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb, one_time_keyboard: true}})
+  await bot.sendMessage(chat_id, message, {
+    reply_markup: {resize_keyboard: true, keyboard: kbb, one_time_keyboard: true}
+  })
+
+  await bot.sendMessage(chat_id, report)
 }
 
 const ust5 = async (bot, chat_id, lang) => {
@@ -84,15 +94,19 @@ const ust6 = async (bot, chat_id, lang, text) => {
 
   await updateUser({telegram_id: chat_id}, {lang: text, step: 5})
 
+  const user = await getUser({telegram_id: chat_id}), report = bio(user, 'USER', lang)
+
   if (lang === kb.language.uz) {
-    message = "Tilingiz muvaffaqiyatli o'zgartirildi"
+    message = "Platformadagi tilingiz muvaffaqiyatli o'zgartirildi"
     kbb = keyboard.user.settings.uz
   } else {
-    message = "Ваш язык успешно изменен"
+    message = "Язык вашей платформы успешно изменен"
     kbb = keyboard.user.settings.ru
   }
 
   await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
+
+  await bot.sendMessage(chat_id, report)
 }
 
 const userSettings = async (bot, user, lang, text) => {

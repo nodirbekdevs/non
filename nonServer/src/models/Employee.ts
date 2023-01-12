@@ -64,7 +64,7 @@ const employeeSchema = new Schema({
     }],
     feedback: [{
         type: String,
-        ref: 'Product',
+        ref: 'Feedback',
         default: []
     }],
     total_orders: {

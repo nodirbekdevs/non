@@ -3,7 +3,7 @@ const {v4} = require('uuid')
 
 const Feedback = model('Feedback', new Schema({
   _id: {type: String, default: v4},
-  author: {type: Number, ref: 'User', required: true},
+  author: {type: Number, required: true},
   branch: {type: String, ref: 'Branch', default: ''},
   is_employee: {type: Boolean, default: false},
   mark: {type: String, default: ''},

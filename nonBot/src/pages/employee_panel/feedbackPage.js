@@ -1,7 +1,8 @@
 const kb = require('../../helpers/keyboard-buttons')
 const keyboard = require('../../helpers/keyboard')
-const {getAllFeedback, getOneFeedback, makeFeedback, updateFeedback, countFeedback} = require('../../controllers/feedbackController')
+const {getAllFeedback, getOneFeedback, makeFeedback, updateFeedback, deleteFeedback, countFeedback} = require('../../controllers/feedbackController')
 const {getEmployee} = require('../../controllers/employeeController')
+const {getUser} = require('./../../controllers/userController')
 
 let feedback_id
 
@@ -12,7 +13,7 @@ const efs0 = async (bot, chat_id) => {
 }
 
 const efs1 = async (bot, chat_id) => {
-  const new_feedback = await makeFeedback({telegram_id: chat_id, is_employee: true})
+  const new_feedback = await makeFeedback({author: chat_id, is_employee: true})
   feedback_id = new_feedback._id
 
   await bot.sendMessage(chat_id, `Biz haqimizda nima deb o'ylaysiz`, {
@@ -33,13 +34,26 @@ const efs2 = async (bot, chat_id, _id, text) => {
 const efs3 = async (bot, chat_id, _id, text) => {
   await updateFeedback({_id}, {description: text, step: 2, status: 'active'})
 
+  const feedback = await getOneFeedback({_id}), employee = await getEmployee({telegram_id: chat_id})
+
+  if (feedback.mark === kb.options.feedback.uz || feedback.mark === kb.options.feedback.ru) {
+    await updateFeedback({_id: feedback._id}, {action: 'done'})
+  }
+
+  if (employee) {
+    employee.feedback.push(_id)
+    employee.total_feedback += 1
+    await employee.save()
+  }
+
   await bot.sendMessage(chat_id, `Fikringiz muvaffaqiyatli bildirildi`, {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.feedback.uz}
   })
 }
 
 const efs4 = async (bot, id) => {
-  let message
+  let message = ''
+
   const
     feedback = await getAllFeedback({author: id}),
     count = await countFeedback({author: id}),
@@ -48,20 +62,25 @@ const efs4 = async (bot, id) => {
     inactive = await countFeedback({author: id, status: 'inactive'})
 
   if (count > 0) {
-    feedback.map(async item => {
-      const word = `
-        Avyor: ${author.name}
-        Baho: ${item.title}
-        Sabab: ${item.description}
-      `
+    let word = '', status
+    for (let i = 0; i < feedback.length; i++) {
+      const item = feedback[i]
+
+      if (item.action === 'process') status = "Ko'rildi"
+      else if (item.action === 'seen') status = 'Bajarilmoqda'
+      else status = 'Bajarildi'
+
+      word += `Muallif - ${author.name}\n`
+      word += `Baho - ${item.title}\n`
+      word += `Sabab - ${item.description}\n`
+      word += `Holat - ${status}`
+
       await bot.sendMessage(id, word)
-    })
+    }
 
-    message =
-      `${author.name} siz umumiy ${count} fikr bildirgansiz.
-        ${active} tugallangan fikrlaringiz soni
-        ${inactive} xato fikrlaringiz soni`
-
+    message += `${author.name} siz umumiy ${count} fikr bildirgansiz\n`
+    message += `${active} tugallangan fikrlaringiz soni\n`
+    message += `${inactive} xato fikrlaringiz soni`
 
   } else if (count <= 0) {
     message = "Hozircha siz fikr qoldirmagansiz"
@@ -71,7 +90,7 @@ const efs4 = async (bot, id) => {
 }
 
 const efs5 = async (bot, _id, author) => {
-  await updateFeedback({_id}, {step: 3, status: 'inactive'})
+  await deleteFeedback({_id})
   await efs0(bot, author)
 }
 

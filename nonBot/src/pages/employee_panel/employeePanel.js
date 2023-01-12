@@ -6,15 +6,16 @@ const {employeeOrders, eos2} = require('./ordersPage')
 const {getEmployee, updateEmployee} = require('./../../controllers/employeeController')
 const {hash, genSalt} = require('bcrypt')
 
-
 const employeePanel = async (bot, message, employee) => {
   let text, username = '', password = ''
+
+  console.log("Kevotti")
 
   const chat_id = message.chat.id, name = employee.name
 
   if (message) {
     if (message.photo) {
-      text = message.message.photo[0].file_id
+      text = message.photo[0].file_id
     }
     if (message.text) {
       text = message.text
@@ -34,7 +35,9 @@ const employeePanel = async (bot, message, employee) => {
       }
     }
 
-    await employeeMainPage(bot, chat_id, name, text)
+    console.log("Kevotti")
+
+    await employeeMainPage(bot, chat_id, text)
     await employeeSettings(bot, employee, text)
     await employeeFeedback(bot, chat_id, name, text)
     await employeeProducts(bot, chat_id, text)

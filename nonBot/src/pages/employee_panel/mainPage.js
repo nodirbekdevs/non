@@ -1,8 +1,8 @@
 const kb = require('./../../helpers/keyboard-buttons')
 const keyboard = require('./../../helpers/keyboard')
 
-const emp = async (bot, chat_id, name) => {
-  await bot.sendMessage(chat_id, `${name} nima qilamiz`, {
+const emp = async (bot, chat_id) => {
+  await bot.sendMessage(chat_id, `Bosh sahifa`, {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.pages}
   })
 }

@@ -53,7 +53,7 @@ export class EmployeeValidator {
         task: Joi.string().valid('Nonvoy', 'Xamirchi', 'Yetkazib beruvchi'),
         is_idler: Joi.boolean(),
         step: Joi.number().integer(),
-        status: Joi.string().valid('process','active')
+        status: Joi.string().valid('process', 'inactive', 'active')
     })
 
     create = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

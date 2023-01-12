@@ -11,7 +11,7 @@ const Employee = model('Employee', new Schema({
   password: {type: String, default: ''},
   number: {type: String, default: ''},
   orders: [{type: String, ref: 'Order', default: []}],
-  feedback: [{type: String, ref: 'Product', default: []}],
+  feedback: [{type: String, ref: 'Feedback', default: []}],
   total_orders: {type: Number, default: 0},
   total_feedback: {type: Number, default: 0},
   num_of_delivered_product: {type: Number, default: 0},

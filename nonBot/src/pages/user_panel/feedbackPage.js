@@ -1,6 +1,6 @@
 const kb = require('../../helpers/keyboard-buttons')
 const keyboard = require('../../helpers/keyboard')
-const {getAllFeedback, getOneFeedback, makeFeedback, updateFeedback, countFeedback} = require('../../controllers/feedbackController')
+const {getAllFeedback, getOneFeedback, makeFeedback, updateFeedback, deleteFeedback, countFeedback} = require('../../controllers/feedbackController')
 const {getUser} = require('../../controllers/userController')
 
 let feedback_id
@@ -27,7 +27,7 @@ const ufs0 = async (bot, chat_id, lang) => {
 const ufs1 = async (bot, chat_id, lang) => {
   let message, kbb
 
-  const new_feedback = await makeFeedback({telegram_id: chat_id})
+  const new_feedback = await makeFeedback({author: chat_id})
   feedback_id = new_feedback ? new_feedback._id : null
 
   if (lang === kb.language.uz) {
@@ -64,7 +64,17 @@ const ufs3 = async (bot, _id, lang, text) => {
 
   await updateFeedback({_id}, {reason: text, step: 2, status: 'active'})
 
-  const feedback = await getOneFeedback({_id})
+  const feedback = await getOneFeedback({_id}), user = await getUser({telegram_id: feedback.author})
+
+  if (feedback.mark === kb.options.feedback.uz || feedback.mark === kb.options.feedback.ru) {
+    await updateFeedback({_id: feedback._id}, {action: 'done'})
+  }
+
+  if (user) {
+    user.feedback.push(feedback._id)
+    user.total_feedback += 1
+    await user.save()
+  }
 
   if (lang === kb.language.uz) {
     message = `Fikringiz muvaffaqiyatli bildirildi`
@@ -78,32 +88,41 @@ const ufs3 = async (bot, _id, lang, text) => {
 }
 
 const ufs4 = async (bot, id, lang) => {
-  let message
+  let message = ''
   const
     feedback = await getAllFeedback({author: id}),
     count = await countFeedback({author: id}),
     author = await getUser({telegram_id: id}),
-    completed = await countFeedback({author: id, status: 'active'}),
-    mistake = await countFeedback({author: id, status: 'inactive'})
+    active = await countFeedback({author: id, status: 'active'}),
+    inactive = await countFeedback({author: id, status: 'inactive'})
 
   if (count > 0) {
-    feedback.map(async item => {
-      const clause = `
-        avtor: ${author.name}
-        Baho: ${item.mark}
-        Sabab: ${item.reason}
-      `
+    let clause = '', status
+
+    for (let i = 0; i < feedback.length; i++) {
+      const item = feedback[i]
+
+      if (item.action === 'process') status = "Ko'rildi"
+      else if (item.action === 'seen') status = 'Bajarilmoqda'
+      else status = 'Bajarildi'
+
+      clause += `avtor: ${author.name}\n`
+      clause += `Baho: ${item.mark}\n`
+      clause += `Sabab: ${item.reason}\n`
+      clause += `Holat - ${status}\n`
+
       await bot.sendMessage(id, clause)
-    })
+    }
 
-    message = (lang === kb.language.uz)
-      ? `${author.name} siz umumiy ${count} fikr bildirgansiz.
-        ${completed} tugallangan fikrlaringiz soni
-        ${mistake} ohiriga yetmagan fikrlaringiz soni`
-      : `${author.name} Вы предоставили всего ${count} коментарии.
-        ${completed} количество закрытых коментарии
-        ${mistake} количество не закрытых коментарии`
-
+    if (lang === kb.language.uz) {
+      message += `${author.name} siz umumiy ${count} fikr bildirgansiz\n`
+      message += `${active} tugallangan fikrlaringiz soni\n`
+      message += `${inactive} ohiriga yetmagan fikrlaringiz soni`
+    } else if (lang === kb.language.ru) {
+      message += `${author.name} Вы предоставили всего ${count} коментарии\n`
+      message += `${active} количество закрытых коментарии\n`
+      message += `${inactive} количество не закрытых коментарии`
+    }
   } else if (count === 0 || count < 0) {
     message = (lang === kb.language.uz) ? "Hozircha siz fikr bildirmagansiz" : "Пока вы не прокомментировали"
   }
@@ -112,7 +131,7 @@ const ufs4 = async (bot, id, lang) => {
 }
 
 const ufs5 = async (bot, chat_id, _id, lang) => {
-  await updateFeedback({_id}, {step: 3, status: 'inactive'})
+  await deleteFeedback({_id})
   await ufs0(bot, chat_id, lang)
 }
 

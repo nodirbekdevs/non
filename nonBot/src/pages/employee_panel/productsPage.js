@@ -9,19 +9,19 @@ const ps0 = async (bot, chat_id) => {
 }
 
 const ps1 = async (bot, chat_id) => {
+  let message = ''
+
   const products = await getProducts({}), kbb = keyboard.employee.products
 
   if (products.length > 0) {
     products.map(async product => {
-      const message = `
-        Nomi: ${product.product_name}
-        Tavsifi: ${product.description}
-        Narxi: ${product.price}
-      `
+      message += `Nomi: ${product.product_name}\n`
+      message += `Tavsifi: ${product.description}\n`
+      message += `Narxi: ${product.price}`
 
       await bot.sendPhoto(chat_id, product.image, {
-        caption: message, reply_markup: {resize_keyboard: true, keyboard: kbb}
-      })
+        caption: message, reply_markup: {resize_keyboard: true, keyboard: kbb}}
+        )
     })
   } else {
     await bot.sendMessage(chat_id, "Hali mahsulotlar yo'q", {

@@ -173,20 +173,61 @@ const order_edit_keyboard = async (data, lang) => {
 }
 
 const determine_the_rating = (product) => {
-  let total_rating = 0
-  for (let i = 0; i < product.rating; i++) {
-    total_rating += product.rating[i]
+  let rating = 0
+
+  if (product.rating.length > 0) {
+    let total_rating = 0
+
+    for (let i = 0; i < product.rating; i++) {
+      total_rating += product.rating[i]
+    }
+
+    rating = total_rating / product.rating.length
   }
-  const rating = total_rating / product.rating.length
+
   return rating
 }
 
+const bio = (data, kw, lang) => {
+  let message = ''
+
+  if (kw === 'ADMIN') {
+    message += 'Ma\'lumotlaringiz: \n'
+    message += `Ismingiz - ${data.name}.\n`
+    message += `Telefon raqamingiz - ${data.number}.\n`
+    message += `\nNimani o'zgartirmoqchisiz`
+  }
+  else if (kw === 'EMPLOYEE') {
+    message += `Ma'lumotlaringiz: \n`
+    message += `Ismingiz - ${data.name}.\n`
+    message += `Telefon raqamingiz - ${data.number}\n`
+    message += `\n Nimani o'zgartirmoqchisiz`
+  }
+  else if (kw === 'USER') {
+    if (lang === kb.language.uz) {
+      message += `Ma'lumotlaringiz:\n`
+      message += `Ismingiz - ${data.name}.\n`
+      message += `Telefon raqamingiz - +${data.number}.\n`
+      message += 'Tanlagan tilingiz - UZ\n'
+      message += '\nNimani o\'zgartirmoqchisiz'
+    } else if (lang === kb.language.ru) {
+      message += `Ma'lumotlaringiz:\n`
+      message += `Ваше имя - ${data.name}.\n`
+      message += `Ваш номер телефона - +${data.number}.\n`
+      message += 'Выбранный вами язык - RU\n'
+      message += '\nЧто вы хотите изменить'
+    }
+  }
+
+  return message
+}
+
 const get_report = async (data, lang, kw, options = null) => {
-  let report = "", information, bot, chat_id, kbb, text, clause, items, total_sum = 0
+  let report = "", information = '', bot, chat_id, kbb, text, clause = '', items, total_sum = 0
 
-  if (typeof data === "object") items = data.items
+  if (typeof data === 'object') items = data.items
 
-  if (data.status === 'process' && items.length > 0) {
+  if (data.status === 'process' && data.items.length > 0) {
     report = (lang === kb.language.uz) ? "Buyurtma qilmoqchi bo'lgan mahsulotlaringiz\n" : "Продукты, которые вы хотите заказать\n"
   }
 
@@ -207,55 +248,60 @@ const get_report = async (data, lang, kw, options = null) => {
         for (let i = 0; i < items.length; i++) {
           const item = await getItem({_id: items[i]})
 
-          clause = (lang === kb.language.uz) ? `
-            Mahsulot: ${item.product}
-            Soni: ${item.quantity}
-            Narxi: ${item.price}
-          ` : `
-            Товар: ${item.product}
-            Число: ${item.quantity}
-            Цена: ${item.price}
-          `
+          if (lang === kb.language.uz) {
+            clause += `\nMahsulot nomi: ${item.product}\n`
+            clause += `Miqdori: ${item.quantity}\n`
+            clause += `Narxi: ${item.price}\n`
+          } else {
+            clause += `\nТовар: ${item.product}\n`
+            clause += `Число: ${item.quantity}\n`
+            clause += `Цена: ${item.price}\n`
+          }
+
           report += clause
+
+          clause = ""
         }
 
         if (order.should_deliver) {
-
-          information = (lang === kb.language.uz) ? `
-            Yetkazib berish: Mavjud
-            Mahsulot turi: ${order.total_items}
-            Kuni: ${order.date}
-            Vaqti: ${order.time}
-            Holati: ${order.status}
-            Narxi: ${order.price}
-          ` : `
-            Поставщик: ${employee.name}
-            Номер поставщика: ${employee.number}
-            Доставка: Есть
-            Тип продукта: ${order.total_items}
-            День: ${order.date}
-            Время: ${order.time}
-            Статус: ${order.status}
-            Цена: ${order.price}
-          `
+          if (lang === kb.language.uz) {
+            information += `\nMahsulot turi: ${order.total_items}\n`
+            information += `Yetkazib berish: Mavjud\n`
+            information += `Yetkazib berish manzili: ${order.location.place_name}\n`
+            information += `Kuni: ${order.date}\n`
+            information += `Vaqti: ${order.time}\n`
+            information += `Narxi: ${order.price}\n`
+            information += `Holati: ${order.status}`
+          } else if (lang === kb.language.ru) {
+            information += `\nТип продукта: ${order.total_items}\n`
+            information += `Доставка: Есть\n`
+            information += `Адреса доставки: ${order.location.place_name}\n`
+            information += `День: ${order.date}\n`
+            information += `Время: ${order.time}\n`
+            information += `Цена: ${order.price}\n`
+            information += `Статус: ${order.status}`
+          }
         } else if (!order.should_deliver) {
-          information = (lang === kb.language.uz) ? `
-            Yetkazib berish: Mavjud emas
-            Mahsulot turi: ${order.total_items}
-            Kuni: ${order.date}
-            Vaqti: ${order.time}
-            Holati: ${order.status}
-            Narxi: ${order.price}
-          ` : `
-            Доставка: Нет
-            Тип продукта: ${order.total_items}
-            День: ${order.date}
-            Время: ${order.time}
-            Статус: ${order.status}
-            Цена: ${order.price}
-          `
+          if (lang === kb.language.uz) {
+            information += `\nMahsulot turi: ${order.total_items}\n`
+            information += `Yetkazib berish: Mavjud emas\n`
+            information += `Kuni: ${order.date}\n`
+            information += `Vaqti: ${order.time}\n`
+            information += `Narxi: ${order.price}\n`
+            information += `Holati: ${order.status}`
+          } else if (lang === kb.language.ru) {
+            information += `\nТип продукта: ${order.total_items}\n`
+            information += `Доставка: Недоступно\n`
+            information += `День: ${order.date}\n`
+            information += `Время: ${order.time}\n`
+            information += `Цена: ${order.price}\n`
+            information += `Статус: ${order.status}`
+          }
         }
+
         report += information
+
+        information = ''
 
         await bot.sendMessage(chat_id, report, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
 
@@ -268,53 +314,59 @@ const get_report = async (data, lang, kw, options = null) => {
     for (let i = 0; i < items.length; i++) {
       const item = await getItem({_id: items[i]})
 
-      const clause = (lang === kb.language.uz) ? `
-      Mahsulot: ${item.product}
-      Soni: ${item.quantity}
-      Narxi: ${item.price}
-    ` : `
-      Товар: ${item.product}
-      Число: ${item.quantity}
-      Цена: ${item.price}
-    `
+      if (lang === kb.language.uz) {
+        clause += `\nMahsulot nomi: ${item.product}\n`
+        clause += `Miqdori: ${item.quantity}\n`
+        clause += `Narxi: ${item.price}\n`
+      } else {
+        clause += `\nТовар: ${item.product}\n`
+        clause += `Число: ${item.quantity}\n`
+        clause += `Цена: ${item.price}\n`
+      }
+
       report += clause
+
+      clause = ""
     }
 
     if (data.should_deliver) {
-
-      information = (lang === kb.language.uz) ? `
-      Yetkazib berish: Mavjud
-      Mahsulot turi: ${data.total_items}
-      Kuni: ${data.date}
-      Vaqti: ${data.time}
-      Holati: ${data.status}
-      Narxi: ${data.price}
-    ` : `
-      Доставка: Есть
-      Тип продукта: ${data.total_items}
-      День: ${data.date}
-      Время: ${data.time}
-      Статус: ${data.status}
-      Цена: ${data.price}
-    `
+      if (lang === kb.language.uz) {
+        information += `\nMahsulot turi: ${data.total_items}\n`
+        information += `Yetkazib berish: Mavjud\n`
+        information += `Yetkazib berish manzili: ${data.location.place_name}\n`
+        information += `Kuni: ${data.date}\n`
+        information += `Vaqti: ${data.time}\n`
+        information += `Narxi: ${data.price}\n`
+        information += `Holati: ${data.status}`
+      } else if (lang === kb.language.ru) {
+        information += `\nТип продукта: ${data.total_items}\n`
+        information += `Доставка: Есть\n`
+        information += `Адреса доставки: ${data.location.place_name}\n`
+        information += `День: ${data.date}\n`
+        information += `Время: ${data.time}\n`
+        information += `Цена: ${data.price}\n`
+        information += `Статус: ${data.status}`
+      }
     } else if (!data.should_deliver) {
-      information = (lang === kb.language.uz) ? `
-            Yetkazib berish: Mavjud emas
-            Mahsulot turi: ${data.total_items}
-            Kuni: ${data.date}
-            Vaqti: ${data.time}
-            Holati: ${data.status}
-            Narxi: ${data.price}
-        ` : `
-            Доставка: Нет
-            Тип продукта: ${data.total_items}
-            День: ${data.date}
-            Время: ${data.time}
-            Статус: ${data.status}
-            Цена: ${data.price}
-        `
+      if (lang === kb.language.uz) {
+        information += `\nMahsulot turi: ${data.total_items}\n`
+        information += `Yetkazib berish: Mavjud emas\n`
+        information += `Kuni: ${data.date}\n`
+        information += `Vaqti: ${data.time}\n`
+        information += `Narxi: ${data.price}\n`
+        information += `Holati: ${data.status}`
+      } else if (lang === kb.language.ru) {
+        information += `\nТип продукта: ${data.total_items}\n`
+        information += `Доставка: Недоступно\n`
+        information += `День: ${data.date}\n`
+        information += `Время: ${data.time}\n`
+        information += `Цена: ${data.price}\n`
+        information += `Статус: ${data.status}`
+      }
     }
     report += information
+
+    information = null
 
     return report
   }
@@ -326,34 +378,40 @@ const get_report = async (data, lang, kw, options = null) => {
       for (let i = 0; i < items.length; i++) {
         const item = await getItem({_id: items[i]})
 
-        clause = (lang === kb.language.uz) ? `
-            Mahsulot: ${item.product}
-            Soni: ${item.quantity}
-            Narxi: ${item.price}
-          ` : `
-            Товар: ${item.product}
-            Число: ${item.quantity}
-            Цена: ${item.price}
-          `
+        if (lang === kb.language.uz) {
+          clause += `\nMahsulot nomi: ${item.product}\n`
+          clause += `Miqdori: ${item.quantity}\n`
+          clause += `Narxi: ${item.price}\n`
+        } else {
+          clause += `\nТовар: ${item.product}\n`
+          clause += `Число: ${item.quantity}\n`
+          clause += `Цена: ${item.price}\n`
+        }
+
         report += clause
+
+        clause = ""
       }
 
-      const information = (lang === kb.language.uz) ? `
-          Yetkazib berish: Mavjud emas
-          Mahsulot turi: ${order.total_items}
-          Kuni: ${order.date}
-          Vaqti: ${order.time}
-          Holati: ${order.status}
-          Narxi: ${order.price}
-        ` : `
-          Доставка: Нет
-          Тип продукта: ${order.total_items}
-          День: ${order.date}
-          Время: ${order.time}
-          Статус: ${order.status}
-          Цена: ${order.price}
-        `
+      if (lang === kb.language.uz) {
+        information += `\nMahsulot turi: ${order.total_items}\n`
+        information += `Yetkazib berish: Mavjud emas\n`
+        information += `Kuni: ${order.date}\n`
+        information += `Vaqti: ${order.time}\n`
+        information += `Narxi: ${order.price}\n`
+        information += `Holati: ${order.status}`
+      } else if (lang === kb.language.ru) {
+        information += `\nТип продукта: ${order.total_items}\n`
+        information += `Доставка: Недоступно\n`
+        information += `День: ${order.date}\n`
+        information += `Время: ${order.time}\n`
+        information += `Цена: ${order.price}\n`
+        information += `Статус: ${order.status}`
+      }
+
       report += information
+
+      information = ''
 
       const send_text = (lang === kb.language.uz) ? kb.options.accepted.uz : kb.options.accepted.ru
 
@@ -362,6 +420,8 @@ const get_report = async (data, lang, kw, options = null) => {
           inline_keyboard: [[{text: send_text, callback_data: JSON.stringify({phrase: text, id: data[i]._id})}]]
         }
       })
+
+      report = ''
     }
   }
 
@@ -369,93 +429,102 @@ const get_report = async (data, lang, kw, options = null) => {
     for (let i = 0; i < items.length; i++) {
       const item = await getItem({_id: items[i]})
 
-      const clause = (lang === kb.language.uz) ? `
-        Mahsulot: ${item.product}
-        Soni: ${item.quantity}
-        Narxi: ${item.price}
-      ` : `
-        Товар: ${item.product}
-        Число: ${item.quantity}
-        Цена: ${item.price}
-      `
+      if (lang === kb.language.uz) {
+        clause += `\nMahsulot nomi: ${item.product}\n`
+        clause += `Miqdori: ${item.quantity}\n`
+        clause += `Narxi: ${item.price}\n`
+      } else {
+        clause += `\nТовар: ${item.product}\n`
+        clause += `Число: ${item.quantity}\n`
+        clause += `Цена: ${item.price}\n`
+      }
       report += clause
+
+      clause = ""
     }
 
-    information = (lang === kb.language.uz) ? `
-      Yetkazib berish: Mavjud
-      Mahsulot turi: ${data.total_items}
-      Kuni: ${data.date}
-      Vaqti: ${data.time}
-      Holati: ${data.status}
-      Narxi: ${data.price}
-    ` : `
-      Доставка: Есть
-      Тип продукта: ${data.total_items}
-      День: ${data.date}
-      Время: ${data.time}
-      Статус: ${data.status}
-      Цена: ${data.price}
-    `
+    if (lang === kb.language.uz) {
+      information += `\nMahsulot turi: ${data.total_items}\n`
+      information += `Yetkazib berish: Mavjud\n`
+      information += `Kuni: ${data.date}\n`
+      information += `Vaqti: ${data.time}\n`
+      information += `Narxi: ${data.price}\n`
+      information += `Holati: ${data.status}`
+    } else if (lang === kb.language.ru) {
+      information += `\nТип продукта: ${data.total_items}\n`
+      information += `Доставка: Есть\n`
+      information += `День: ${data.date}\n`
+      information += `Время: ${data.time}\n`
+      information += `Цена: ${data.price}\n`
+      information += `Статус: ${data.status}`
+    }
+
     report += information
+
+    information = null
 
     return report
   }
 
   if (kw === 'ONE_SHND') {
-    const items = data.items
-
     for (let i = 0; i < items.length; i++) {
       const item = await getItem({_id: items[i]})
 
-      const clause = (lang === kb.language.uz) ? `
-        Mahsulot: ${item.product}
-        Soni: ${item.quantity}
-        Narxi: ${item.price}
-      ` : `
-        Товар: ${item.product}
-        Число: ${item.quantity}
-        Цена: ${item.price}
-      `
+      if (lang === kb.language.uz) {
+        clause += `\nMahsulot nomi: ${item.product}\n`
+        clause += `Miqdori: ${item.quantity}\n`
+        clause += `Narxi: ${item.price}\n`
+      } else {
+        clause += `\nТовар: ${item.product}\n`
+        clause += `Число: ${item.quantity}\n`
+        clause += `Цена: ${item.price}\n`
+      }
+
       report += clause
+
+      clause = ""
     }
 
-    information = (lang === kb.language.uz) ? `
-      Yetkazib berish: Mavjud emas
-      Mahsulot turi: ${data.total_items}
-      Kuni: ${data.date}
-      Vaqti: ${data.time}
-      Holati: ${data.status}
-      Narxi: ${data.price}
-    ` : `
-      Доставка: Нет
-      Тип продукта: ${data.total_items}
-      День: ${data.date}
-      Время: ${data.time}
-      Статус: ${data.status}
-      Цена: ${data.price}
-    `
+    if (lang === kb.language.uz) {
+      information += `\nMahsulot turi: ${data.total_items}\n`
+      information += `Yetkazib berish: Mavjud emas\n`
+      information += `Kuni: ${data.date}\n`
+      information += `Vaqti: ${data.time}\n`
+      information += `Narxi: ${data.price}\n`
+      information += `Holati: ${data.status}`
+    } else if (lang === kb.language.ru) {
+      information += `\nТип продукта: ${data.total_items}\n`
+      information += `Доставка: Недоступно\n`
+      information += `День: ${data.date}\n`
+      information += `Время: ${data.time}\n`
+      information += `Цена: ${data.price}\n`
+      information += `Статус: ${data.status}`
+    }
+
     report += information
+
+    information = null
 
     return report
   }
 
   if (kw === 'BK') {
-    const items = data.items
-
     for (let i = 0; i < items.length; i++) {
       const item = await getItem({_id: items[i]})
 
-      clause = (lang === kb.language.uz) ? `
-        Mahsulot: ${item.product}
-        Soni: ${item.quantity}
-        Narxi: ${item.price}
-      ` : `
-        Товар: ${item.product}
-        Число: ${item.quantity}
-        Цена: ${item.price}
-      `
+      if (lang === kb.language.uz) {
+        clause += `\nMahsulot nomi: ${item.product}\n`
+        clause += `Miqdori: ${item.quantity}\n`
+        clause += `Narxi: ${item.price}\n`
+      } else if (lang === kb.language.ru) {
+        clause += `\nТовар: ${item.product}\n`
+        clause += `Число: ${item.quantity}\n`
+        clause += `Цена: ${item.price}\n`
+      }
 
       report += clause
+
+      clause = ""
     }
 
     report += (lang === kb.language.uz) ? `\nUmumiy narx - ${data.price} so'm` : `\nОбщая стоимость ${data.price} сум`
@@ -482,6 +551,8 @@ const get_report = async (data, lang, kw, options = null) => {
           ]]
         }
       })
+
+      report = ''
     }
   }
 
@@ -510,29 +581,29 @@ const get_report = async (data, lang, kw, options = null) => {
     for (let i = 0; i < items.length; i++) {
       const item = await getItem({_id: items[i]})
 
-      clause = `
-        Mahsulot nomi: ${item.product}
-        Miqdori: ${item.quantity}
-        Narxi: ${item.price}
-      `
+      clause += `\nMahsulot nomi: ${item.product}\n`
+      clause += `Miqdori: ${item.quantity}\n`
+      clause += `Narxi: ${item.price}\n`
 
       item.step = 5
       item.status = 'out_of_delivery'
       await item.save()
 
       report += clause
+
+      clause = ""
     }
 
-    information = `
-        Mahsulot turi: ${data.total_items}
-        Yetkazib berish: Mavjud
-        Yetkazib berish manzili: ${data.location.place_name}
-        Kuni: ${data.date}
-        Vaqti: ${data.time}
-        Narxi: ${data.price}
-    `
+    information += `\nMahsulot turi: ${data.total_items}\n`
+    information += `Yetkazib berish: Mavjud\n`
+    information += `Yetkazib berish manzili: ${data.location.place_name}\n`
+    information += `Kuni: ${data.date}\n`
+    information += `Vaqti: ${data.time}\n`
+    information += `Narxi: ${data.price}\n`
 
     report += information
+
+    information = null
 
     return report
   }
@@ -544,25 +615,24 @@ const get_report = async (data, lang, kw, options = null) => {
       for (let i = 0; i < items.length; i++) {
         const item = await getItem({_id: items[i]})
 
-        const clause = `
-        Mahsulot nomi: ${item.product}
-        Miqdori: ${item.quantity}
-        Narxi: ${item.price}
-    `
+        clause += `\nMahsulot nomi: ${item.product}\n`
+        clause += `Miqdori: ${item.quantity}\n`
+        clause += `Narxi: ${item.price}\n`
 
         report += clause
       }
 
-      information += `
-        Yetkazib berish: Mavjud
-        Mahsulot turlari - ${order.total_items}
-        Kuni: ${order.date}
-        Vaqti: ${order.time}
-        Holati: ${order.status}
-        Narxi: ${order.price}
-      `
+      information += `\nMahsulot turi: ${data.total_items}\n`
+      information += `Yetkazib berish: Mavjud\n`
+      information += `Yetkazib berish manzili: ${data.location.place_name}\n`
+      information += `Kuni: ${data.date}\n`
+      information += `Vaqti: ${data.time}\n`
+      information += `Narxi: ${data.price}\n`
+      information += `Holati: Yetkazib berilgan`
 
       report += information
+
+      information = null
 
       await bot.sendMessage(chat_id, report, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
     }
@@ -575,5 +645,6 @@ module.exports = {
   product_keyboard,
   order_edit_keyboard,
   determine_the_rating,
+  bio,
   get_report
 }

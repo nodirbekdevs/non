@@ -47,6 +47,7 @@ const orderSchema = new Schema({
     },
     branch: {
         type: String,
+        ref: 'Branch',
         default: ''
     },
     items: [{

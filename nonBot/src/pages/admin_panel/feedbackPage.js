@@ -4,30 +4,23 @@ const {countFeedback} = require('./../../controllers/feedbackController')
 
 const afs0 = async (bot, chat_id) => {
   await bot.sendMessage(chat_id, "Fikrlar bo'limida nima qilamiz", {
-    reply_markup: {
-      resize_keyboard: true,
-      keyboard: keyboard.admin.feedback
-    }
+    reply_markup: {resize_keyboard: true, keyboard: keyboard.admin.feedback}
   })
 }
 
 const afs1 = async (bot, chat_id) => {
-  const number = await countFeedback({})
-  const process = await countFeedback({status: 'process'})
-  const active = await countFeedback({status: 'active'})
-  const inactive = await countFeedback({status: 'inactive'})
-  const seen = await countFeedback({action: 'seen'})
-  const done = await countFeedback({action: 'done'})
+  let message
 
-  const message = `
-    Umumiy fikrlar soni - ${number}
-    Tugallanmagan fikrlar soni - ${process}
-    Qabul qilingan fikrlar soni - ${active}
-    Qabul qilinmagan fikrlar soni - ${inactive}
-    
-    Ko'rilgan fikrlar soni - ${seen}
-    Amalga oshirilgan fikrlar soni - ${done}
-  `
+  const number = await countFeedback({}), process = await countFeedback({status: 'process'}),
+  active = await countFeedback({status: 'active'}), inactive = await countFeedback({status: 'inactive'}),
+  seen = await countFeedback({action: 'seen'}), done = await countFeedback({action: 'done'})
+
+  message += `Umumiy fikrlar soni - ${number}\n`
+  message += `Tugallanmagan fikrlar soni - ${process}\n`
+  message += `Qabul qilingan fikrlar soni - ${active}\n`
+  message += `Qabul qilinmagan fikrlar soni - ${inactive}\n`
+  message += `\nKo'rilgan fikrlar soni - ${seen}\n`
+  message += `Amalga oshirilgan fikrlar soni - ${done}`
 
   await bot.sendMessage(chat_id, message)
 }

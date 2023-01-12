@@ -1,19 +1,16 @@
 const keyboard = require('./../../helpers/keyboard')
 const kb = require('./../../helpers/keyboard-buttons')
-const {genSalt, hash} = require('bcrypt')
-const {updateEmployee} = require('../../controllers/employeeController')
+const {getEmployee, updateEmployee} = require('../../controllers/employeeController')
+const {bio} = require('./../../helpers/utils')
 
 let type
 
 const esst0 = async (bot, employee) => {
-  const word = `Ma'lumotlaringiz: \n \n Ismingiz - ${employee.name}.\n
-  Telefon raqamingiz - ${employee.number}. \n
-  Username - ${employee.username}. \n
-  Nimani o'zgartirmoqchisiz`;
+  const message = bio(employee, 'EMPLOYEE', '')
 
   await updateEmployee({telegram_id: employee.telegram_id}, {step: 1})
 
-  await bot.sendMessage(employee.telegram_id, word, {
+  await bot.sendMessage(employee.telegram_id, message, {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.settings}
   })
 }
@@ -26,9 +23,13 @@ const esst1 = async (bot, chat_id) => {
 const esst2 = async (bot, chat_id, text) => {
   await updateEmployee({telegram_id: chat_id}, {name: text, step: 1})
 
+  const employee = await getEmployee({telegram_id: chat_id}), message = bio(employee, 'EMPLOYEE', '')
+
   await bot.sendMessage(chat_id, "Ismingiz muvaffaqiyatli o'zgartirildi", {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.settings}
   })
+
+  await bot.sendMessage(chat_id, message)
 }
 
 const esst3 = async (bot, chat_id) => {
@@ -38,9 +39,14 @@ const esst3 = async (bot, chat_id) => {
 
 const esst4 = async (bot, chat_id, text) => {
   await updateEmployee({telegram_id: chat_id}, {number: text, step: 1})
+
+  const employee = await getEmployee({telegram_id: chat_id}), message = bio(employee, 'EMPLOYEE', '')
+
   await bot.sendMessage(chat_id, "Raqamingiz muvaffaqiyatli o'zgartirildi", {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.settings}
   })
+
+  await bot.sendMessage(chat_id, message)
 }
 
 const employeeSettings = async (bot, employee, text) => {

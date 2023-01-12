@@ -14,7 +14,7 @@ const aos0 = async (bot, chat_id) => {
 }
 
 const aos1 = async (bot, chat_id) => {
-  let number, active = 0, inactive = 0, approved = 0, out_of_delivery = 0, delivered = 0, accepted = 0
+  let message = '', number, active = 0, inactive = 0, approved = 0, out_of_delivery = 0, delivered = 0, accepted = 0
 
   const orders = await getOrders({})
 
@@ -39,16 +39,13 @@ const aos1 = async (bot, chat_id) => {
     accepted = 0;
   }
 
-
-  const message = `
-    Barcha buyurtmalar: ${number}
-    Tayyorlanishi kerak bo'lgan buyurtmalar: ${active}
-    Noto'g'ri buyurtmalar: ${inactive}
-    Yetkazib berish uchun tasdiqlangan buyurtmalar: ${approved}
-    Yetkazib berilayotgan buyurtmalar: ${out_of_delivery}
-    Yetkazib berilan buyurtmalar: ${delivered}
-    Qabul qilib olingan buyurtmalar: ${accepted}
-  `
+  message += `Barcha buyurtmalar: ${number}\n`
+  message += `Tayyorlanishi kerak bo'lgan buyurtmalar: ${active}\n`
+  message += `Noto'g'ri buyurtmalar: ${inactive}\n`
+  message += `Yetkazib berish uchun tasdiqlangan buyurtmalar: ${approved}\n`
+  message += `Yetkazib berilayotgan buyurtmalar: ${out_of_delivery}\n`
+  message += `Yetkazib berilan buyurtmalar: ${delivered}\n`
+  message += `Qabul qilib olingan buyurtmalar: ${accepted}`
 
   await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: keyboard.admin.orders}})
 }
@@ -68,21 +65,30 @@ const aos2 = async (bot, chat_id) => {
 }
 
 const aos3 = async (bot, chat_id, _id) => {
-  let buttons = [];
+  let buttons = [], message;
+
+  const order = await getOrder({_id})
 
   order_id = _id
 
-  await updateOrder({_id}, {step: 10})
+  if (order.step === 9) {
+    await updateOrder({_id}, {step: 10})
 
-  const employees = await getEmployees({is_idler: false, task: kb.options.task.supplier})
+    const employees = await getEmployees({is_idler: false, task: kb.options.task.supplier})
 
-  employees.map(e => buttons.push([{text: e.name}]))
+    employees.map(e => buttons.push([{text: e.name}]))
 
-  buttons.push([{text: kb.options.back.uz}])
+    buttons.push([{text: kb.options.back.uz}])
 
-  await bot.sendMessage(chat_id, "Yetkazib beruvchini tanlang", {
-    reply_markup: {resize_keyboard: true, keyboard: buttons, one_time_keyboard: true}
-  })
+    message = "Yetkazib beruvchini tanlang"
+  } else {
+    message = "Bu buyurtmaga yetkazib beruvchi biriktirilgan"
+  }
+
+  buttons.length > 0
+    ? await bot.sendMessage(chat_id, message, {
+      reply_markup: {resize_keyboard: true, keyboard: buttons, one_time_keyboard: true}
+    }) : await bot.sendMessage(chat_id, message)
 }
 
 const aos4 = async (bot, chat_id, _id) => {
@@ -106,10 +112,7 @@ const aos5 = async (bot, chat_id, _id, text) => {
   await bot.sendMessage(employee.telegram_id, "Sizda yangi yetkazib berish kerak bo'lgan buyurtma bor")
 
   await bot.sendMessage(chat_id, `Yetkazib beruvchi - ${employee.name} biriktirildi`, {
-    reply_markup: {
-      resize_keyboard: true,
-      keyboard: keyboard.admin.orders
-    }
+    reply_markup: {resize_keyboard: true, keyboard: keyboard.admin.orders}
   })
 }
 

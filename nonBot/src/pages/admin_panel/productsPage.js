@@ -1,6 +1,8 @@
 const kb = require('./../../helpers/keyboard-buttons')
 const keyboard = require('./../../helpers/keyboard')
-const {getProducts, getProduct, makeProduct, updateProduct, countProduct} = require('./../../controllers/productController')
+const {getAdmin} = require('./../../controllers/adminController')
+const {getProducts, getProduct, makeProduct, updateProduct, deleteProduct, countProduct} = require('./../../controllers/productController')
+const {determine_the_rating} = require('./../../helpers/utils')
 
 let product_id;
 
@@ -11,20 +13,20 @@ const aps0 = async (bot, chat_id) => {
 }
 
 const aps1 = async (bot, chat_id) => {
-  let message
-  const products = await getProducts({})
-  const active_products = await countProduct({status: 'active'})
+  let message = ''
+  const products = await getProducts({}), active_products = await countProduct({status: 'active'})
 
   if (products.length > 0) {
     products.map(async item => {
-      message = `
-      author - ${item.author}
-      name - ${item.product_name}
-      description - ${item.description}
-      num_of_sold - ${item.num_of_sold}
-      price - ${item.price}
-      status - ${item.status}
-    `
+      const rating = determine_the_rating(item)
+
+      message += `Muallif - ${item.author}\n`
+      message += `Nomi - ${item.product_name}\n`
+      message += `Tavsifi - ${item.description}\n`
+      message += `Reytingi - ${rating}\n`
+      message += `Sotilgani - ${item.num_of_sold}\n`
+      message += `Narxi - ${item.price}\n`
+      message += `Holati - ${item.status}`
 
       await bot.sendPhoto(chat_id, item.image, {
         caption: message, reply_markup: {resize_keyboard: true, keyboard: keyboard.admin.products}
@@ -78,20 +80,18 @@ const aps5 = async (bot, chat_id, _id, text) => {
 }
 
 const aps6 = async (bot, chat_id, _id, text) => {
+  let message = ''
   await updateProduct({_id}, {price: parseInt(text), step: 4})
 
-  const product = await getProduct({_id})
+  const product = await getProduct({_id}), rating = determine_the_rating(product)
 
-  const message = `
-   author: ${product.author},
-   name: ${product.product_name},
-   description: ${product.description},
-   raing: 0,
-   num_of_sold: ${product.num_of_sold},
-   price: ${product.price}
-
-   "Tugatilganini tasdiqlaysizmi ?"
-   `
+  message += `Muallif - ${product.author}\n`
+  message += `Nomi - ${product.product_name}\n`
+  message += `Tavsifi - ${product.description}\n`
+  message += `Reytingi - ${rating}\n`
+  message += `Sotilgani - ${product.num_of_sold}\n`
+  message += `Narxi - ${product.price}\n`
+  message += `\nTugatilganini tasdiqlaysizmi ?`
 
   await bot.sendPhoto(chat_id, product.image, {
     caption: message,
@@ -104,12 +104,23 @@ const aps6 = async (bot, chat_id, _id, text) => {
 
 const aps7 = async (bot, chat_id, _id, text) => {
   let message
+
+  const admin = await getAdmin({telegram_id: chat_id}), product = await getProduct({_id})
+
   if (text === kb.options.confirmation.uz) {
     await updateProduct({_id}, {step: 5, status: 'active'})
+
+    if (product.admin === admin.telegram_id) {
+      admin.products.push(product._id)
+      admin.total_products += 1
+      await admin.save()
+    }
+
     message = "Mahsulot qo'shish muvaffaqiyatli yakunlandi. Mahsulot qo'shildi"
   }
   if (text === kb.options.not_to_confirmation.uz) {
-    await updateProduct({_id}, {step: 6, status: 'inactive'})
+    await deleteProduct({_id})
+
     message = "Mahsulot qo'shish muvaffaqiyatli yakunlanmadi. Mahsulot qo'shilmadi"
   }
 

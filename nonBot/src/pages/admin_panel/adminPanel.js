@@ -17,7 +17,7 @@ const adminPanel = async (bot, message, admin) => {
 
   if (message) {
     if (message.photo) {
-      text = message.message.photo[0].file_id
+      text = message.photo[0].file_id
     }
     if (message.text) {
       text = message.text

@@ -170,14 +170,13 @@ module.exports = {
     ],
 
     settings: [
-      [kb.admin.employee.name, kb.admin.employee.number],
+      [kb.employee.settings.name, kb.employee.settings.number],
       [kb.main.uz]
     ],
 
 
     feedback: [
-      [kb.employee.feedback.add],
-      [kb.employee.feedback.my_feedback],
+      [kb.employee.feedback.add, kb.employee.feedback.my_feedback],
       [kb.main.uz]
     ],
 
@@ -234,7 +233,7 @@ module.exports = {
       ],
 
       ru: [
-        [kb.options.situation.ru.increase, kb.options.situation.ru.decrease, kb.options.situation.uz.destroy],
+        [kb.options.situation.ru.increase, kb.options.situation.ru.decrease, kb.options.situation.ru.destroy],
         [kb.options.back.ru]
       ]
     },

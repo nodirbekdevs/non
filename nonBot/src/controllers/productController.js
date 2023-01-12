@@ -19,12 +19,7 @@ const getProduct = async (query) => {
 
 const makeProduct = async (telegram_id) => {
   try {
-    const admin = await getAdmin({telegram_id})
-    const product = await Product.create({author: admin.telegram_id})
-    admin.products.push(product._id)
-    admin.total_products += 1
-    await admin.save()
-    return product
+    return await Product.create({author: telegram_id})
   } catch (e) {
     console.log(e)
   }

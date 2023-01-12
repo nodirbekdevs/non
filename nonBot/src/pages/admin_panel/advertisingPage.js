@@ -1,6 +1,6 @@
 const kb = require('./../../helpers/keyboard-buttons')
 const keyboard = require('./../../helpers/keyboard')
-const {getAdvertisements, getAdvertising, makeAdvertising, updateAdvertising, countAdvertisements} = require('./../../controllers/advertisingController')
+const {getAdvertisements, getAdvertising, makeAdvertising, updateAdvertising, deleteAdvertising, countAdvertisements} = require('./../../controllers/advertisingController')
 const {getAdmin} = require('./../../controllers/adminController')
 const {getUsers} = require('./../../controllers/userController')
 
@@ -13,50 +13,52 @@ const aas0 = async (bot, chat_id) => {
 }
 
 const aas1 = async (bot, chat_id) => {
-  const number = await countAdvertisements({})
-  const active = await countAdvertisements({status: 'active'})
-  const inactive = await countAdvertisements({status: 'inactive'})
-  const approved = await countAdvertisements({status: 'approved'})
+  let message = ''
 
-  const word = `
-    Umumiy reklamalar soni - ${number}
-    Tugallangan reklamalar soni - ${active}
-    Xato reklamalar soni - ${inactive}
-    Tasdiqlangan reklamalar soni - ${approved}
-  `
+  const number = await countAdvertisements({}), active = await countAdvertisements({status: 'active'}),
+    inactive = await countAdvertisements({status: 'inactive'}),
+    approved = await countAdvertisements({status: 'approved'})
 
-  await bot.sendMessage(chat_id, word)
+  message += `Umumiy reklamalar soni - ${number}\n`
+  message += `Tugallangan reklamalar soni - ${active}\n`
+  message += `Xato reklamalar soni - ${inactive}\n`
+  message += `Tasdiqlangan reklamalar soni - ${approved}`
+
+  await bot.sendMessage(chat_id, message)
 }
 
 const aas2 = async (bot, chat_id) => {
-  const advertising = await getAdvertisements({status: 'active'}),
-    count = await countAdvertisements({status: 'active'}),
-    author = await getAdmin({telegram_id: chat_id})
+  let message = ''
 
-  advertising.map(async item => {
-    if (item.status === 'active') {
-      const message = `
-      author: ${author.name},
-      title: ${item.title},
-      description: ${item.description}
-    `
-      if (item.status === 'approved') {
-        await bot.sendPhoto(chat_id, item.image, {caption: message})
-      }
+  const advertisements = await getAdvertisements({status: 'active'}),
+    count = await countAdvertisements({status: 'active'})
 
-      await bot.sendPhoto(chat_id, item.image, {
+  for (let i = 0; i < advertisements.length; i++) {
+    const advertising = advertisements[i]
+
+    message += `<b>${advertising.title}</b>\n`
+    message += `\n<pre>${advertising.description}</pre>`
+
+    if (advertising.status === 'approved') {
+      await bot.sendPhoto(chat_id, advertising.image, {caption: message})
+    } else {
+      await bot.sendPhoto(chat_id, advertising.image, {
         caption: message,
+        parse_mode: 'HTML',
         reply_markup: {
           resize_keyboard: true,
           inline_keyboard: [
             [
-              {text: kb.options.send_advertise, callback_data: JSON.stringify({phrase: kb.options.send_advertise, id: advertising._id})}
+              {
+                text: kb.options.send_advertise,
+                callback_data: JSON.stringify({phrase: 'SEND_AD', id: advertising._id})
+              }
             ]
           ]
         }
       })
     }
-  })
+  }
 
   await bot.sendMessage(chat_id, `Barcha reklamalar - ${count}`)
 }
@@ -87,46 +89,56 @@ const aas5 = async (bot, chat_id, _id, text) => {
 }
 
 const aas6 = async (bot, chat_id, advertising, text) => {
+  let message = ''
+
   await updateAdvertising({_id: advertising._id}, {description: text, step: 3})
 
-  const word = `
-            title: ${advertising.title},
-            description: ${advertising.description},
+  const exist_advertising = await getAdvertising({_id: advertising})
 
-            "Tugatilganini tasdiqlaysizmi ?"
-          `
+  message += `Sarlavha: ${exist_advertising.title}\n`
+  message += `Tavsif: ${exist_advertising.description}\n`
+  message += `\nTugatilganini tasdiqlaysizmi ?`
 
   await bot.sendPhoto(chat_id, advertising.image, {
-    caption: word, reply_markup: {resize_keyboard: true, keyboard: keyboard.options.confirmation_advertising}
+    caption: message, reply_markup: {resize_keyboard: true, keyboard: keyboard.options.confirmation_advertising}
   })
 }
 
 const aas7 = async (bot, chat_id, advertising, text) => {
-  let message
+  let message, inflection = ''
+
+  const admin = await getAdmin({telegram_id: chat_id})
 
   if (text === kb.options.confirmation_advertising.yes) {
-    await updateAdvertising({_id: advertising._id}, {step: 4, status: 'active'})
     message = "Reklama muvaffaqiyatli yakunlandi"
 
-    const inflection = `
-            title: ${advertising.title},
-            description: ${advertising.description},
-          `
+    await updateAdvertising({_id: advertising._id}, {step: 4, status: 'active'})
+
+    admin.advertisements.push(advertising._id)
+    admin.total_advertisements += 1
+    await admin.save()
+
+    inflection += `<b>${advertising.title}</b>`
+    inflection += `<pre>${advertising.description}</pre>`
 
     await bot.sendPhoto(chat_id, advertising.image, {
       caption: inflection,
+      parse_mode: 'HTML',
       reply_markup: {
         resize_keyboard: true,
         inline_keyboard: [
           [
-            {text: kb.options.send_advertise, callback_data: JSON.stringify({phrase: kb.options.send_advertise, id: advertising._id})}
+            {
+              text: kb.options.send_advertise,
+              callback_data: JSON.stringify({phrase: 'SEND_AD', id: advertising._id})
+            }
           ]
         ]
       }
     })
   }
   if (text === kb.options.confirmation_advertising.no) {
-    await updateAdvertising({_id: advertising._id}, {step: 5, status: 'inactive'})
+    await deleteAdvertising({_id: advertising._id})
     message = "Reklama muvaffaqiyatli yakunlanmadi"
   }
 
@@ -136,22 +148,32 @@ const aas7 = async (bot, chat_id, advertising, text) => {
 }
 
 const aas8 = async (bot, chat_id, _id) => {
+  let message = '', report
+
   const advertising = await getAdvertising({_id}), users = await getUsers({status: 'active'})
 
-  users.map(async u => {
-    const message = `
-            title: ${advertising.title},
-            description: ${advertising.description},
-          `
+  if (!advertising.is_send) {
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i]
 
-    await bot.sendPhoto(u.telegram_id, advertising.image, {caption: message})
-  })
+      message += `<b>${advertising.title}</b>`
+      message += `<pre>${advertising.description}</pre>`
 
-  await bot.sendMessage(chat_id, "Reklama barchaga yuborildi")
+      await bot.sendPhoto(u.telegram_id, advertising.image, {caption: message, parse_mode: 'HTML'})
+    }
+
+    await updateAdvertising({_id: advertising._id}, {is_send: true, step: 5, status: 'approved'})
+
+    report = 'Reklama barchaga yuborildi'
+  } else {
+    report = "Siz bu reklamani taqdim etib bo'lgansiz"
+  }
+
+
+  await bot.sendMessage(chat_id, report)
 }
 
 const adminAdvertising = async (bot, chat_id, text) => {
-
   const advertising = await getAdvertising({_id: advertising_id, status: 'process'})
     ? await getAdvertising({_id: advertising_id, status: 'process'})
     : (await getAdvertisements({author: chat_id, status: 'process'}))[0]
@@ -174,7 +196,7 @@ const adminAdvertising = async (bot, chat_id, text) => {
     if (advertising.step === 3) await aas7(bot, chat_id, advertising, text)
 
     if (text === kb.options.back.uz) {
-      await updateAdvertising({_id: advertising._id}, {step: 5, status: 'inactive'})
+      await deleteAdvertising({_id: advertising._id})
       await aas0(bot, chat_id)
     }
   }

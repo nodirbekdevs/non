@@ -1,11 +1,11 @@
+const kb = require('../../helpers/keyboard-buttons')
+const keyboard = require('../../helpers/keyboard')
 const {getOrders, getOrder, updateOrder} = require('../../controllers/orderController')
 const {getProduct} = require('./../../controllers/productController')
 const {getEmployee} = require('../../controllers/employeeController')
 const {getItem} = require('./../../controllers/itemController')
 const {getUser} = require('../../controllers/userController')
 const {get_report} = require('./../../helpers/utils')
-const kb = require('../../helpers/keyboard-buttons')
-const keyboard = require('../../helpers/keyboard')
 
 let order_id
 
@@ -30,6 +30,8 @@ const eos1 = async (bot, chat_id) => {
 }
 
 const eos2 = async (bot, chat_id, _id) => {
+  let user_info = ''
+
   const
     order = await getOrder({_id}),
     user = await getUser({telegram_id: order.author}),
@@ -39,11 +41,9 @@ const eos2 = async (bot, chat_id, _id) => {
 
   order_id = _id
 
-  const user_info = `
-    Qabul qilib oluvchi\n
-    Ismi - ${user.name}
-    Telefon raqam - ${user.number}
-  `
+  user_info += `Qabul qilib oluvchi\n`
+  user_info += `Ismi: ${user.name}\n`
+  user_info += `Telefon raqami: +${user.number}`
 
   await bot.sendMessage(chat_id, user_info)
 

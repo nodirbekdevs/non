@@ -19,12 +19,7 @@ const getAdvertising = async (query) => {
 
 const makeAdvertising = async (telegram_id) => {
   try {
-    const admin = await getAdmin({telegram_id})
-    const advertising = await Advertising.create({author: admin.telegram_id})
-    admin.advertisements.push(advertising._id)
-    admin.total_advertisements += 1
-    await admin.save()
-    return advertising
+    return  await Advertising.create({author: telegram_id})
   } catch (e) {
     console.log(e)
   }
@@ -40,14 +35,6 @@ const updateAdvertising = async (query, data, text) => {
 
 const deleteAdvertising = async (query) => {
   try {
-    const advertising = await getOneAdvertising(query)
-    const admin = await getAdmin({telegram_id: advertising.author})
-    if (admin) {
-      admin.total_advertisements -= 1
-      const index = admin.advertisements.indexOf(advertising._id)
-      if (index > -1) admin.advertisements.splice(index)
-      await admin.save()
-    }
     return await Advertising.findOneAndDelete(query)
   } catch (e) {
     console.log(e)

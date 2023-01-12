@@ -9,15 +9,14 @@ const aus0 = async (bot, chat_id) => {
 }
 
 const aus1 = async (bot, chat_id) => {
-  const number = await countUsers({})
-  const process = await countUsers({status: 'process'})
-  const active = await countUsers({status: 'active'})
+  let message = ''
 
-  const message = `
-    Umumiy foydalanuvchilar soni - ${number}
-    Registratsiyadan o'tayotgan foydalanuvchilar soni - ${process}
-    Registratsiyadan o'tgan foydalanuvchilar soni - ${active}
-  `
+  const number = await countUsers({}), process = await countUsers({status: 'process'}),
+    active = await countUsers({status: 'active'})
+
+  message += `Umumiy foydalanuvchilar soni - ${number}`
+  message += `Registratsiyadan o'tayotgan foydalanuvchilar soni - ${process}`
+  message += `Registratsiyadan o'tgan foydalanuvchilar soni - ${active}`
 
   await bot.sendMessage(chat_id, message)
 }
