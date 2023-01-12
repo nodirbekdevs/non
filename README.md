@@ -1,2 +1,2 @@
 # non
-CRM for non shops and bot for delivwry
+CRM for non shops and bot for delivery
