@@ -40,7 +40,7 @@ const ups2 = async (bot, user, lang, text) => {
   let message = '', clause, iltext
 
   const product = await getProduct({product_name: text}),
-    // rating = determine_the_rating(product) > 0 ? determine_the_rating(product) : 0,
+    // rating = determine_the_rating(product),
     add_basket = (lang === kb.language.uz) ? kb.options.product.uz.add_basket : kb.options.product.ru.add_basket
 
   if (product) {
@@ -80,15 +80,15 @@ const ups2 = async (bot, user, lang, text) => {
 }
 
 const ups3 = async (bot, chat_id, lang) => {
-  let message
-  const user = await getUser({telegram_id: chat_id}),
+  let message = ''
+
+  const user = await getUser({telegram_id: chat_id}), products = user.liked_products,
     kbb = (lang === kb.language.uz) ? keyboard.user.products.uz : keyboard.user.products.ru
 
-  if (user.total_liked_products > 0) {
-    user.liked_products.map(async p => {
-      const product = await getProduct({_id: p})
-        // rating = determine_the_rating(product) ? determine_the_rating(product) : 0
-
+  if (products.length > 0 && user.total_liked_products > 0) {
+    for (let i = 0; i < products.length; i++) {
+      const product = await getProduct({_id: products[i]})
+        // , rating = determine_the_rating(product)
 
       if (lang === kb.language.uz) {
         message += `Nomi: ${product.product_name}\n`
@@ -108,7 +108,9 @@ const ups3 = async (bot, chat_id, lang) => {
         caption: message,
         reply_markup: {resize_keyboard: true, keyboard: kbb}
       })
-    })
+
+      message = ''
+    }
   } else {
     message = (lang === kb.language.uz) ? "Sizda hali yoqtirgan tovar qo'shilmagan" : "Вы еще не добавили любимый продукт"
     await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
@@ -124,14 +126,18 @@ const ups4 = async (bot, chat_id, lang, phrase, _id) => {
 
   if (product) {
     if (phrase === 'ADD') {
-      text = (lang === kb.language.uz) ? "Qo'shildi" : "Добавлен"
-      user.liked_products.push(product._id)
-      user.total_liked_products += 1
-      await user.save()
+      if (!user.liked_products.includes(product._id) && !product.liked_users.includes(user._id)) {
+        text = (lang === kb.language.uz) ? "Qo'shildi" : "Добавлен"
+        user.liked_products.push(product._id)
+        user.total_liked_products += 1
+        await user.save()
 
-      product.liked_users.push(user._id)
-      product.total_liked_users += 1
-      await product.save()
+        product.liked_users.push(user._id)
+        product.total_liked_users += 1
+        await product.save()
+      } else {
+        text = "Siz allaqachon bu mahsulotni yoqtiranlaringiz qatoriga qo'shib bo'lgansiz"
+      }
 
       await bot.sendMessage(chat_id, text, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
     } else if (phrase === 'BASKET') {

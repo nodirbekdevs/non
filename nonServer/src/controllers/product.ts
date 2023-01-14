@@ -65,7 +65,9 @@ export class ProductController {
         }
 
         if (orders.length > 0) {
-            orders.map(async order => {
+            for (let i = 0; i < orders.length; i++) {
+                const order = orders[i]
+
                 if (
                     order.status === 'process' || order.status === 'active' ||
                     order.status === 'approved' || order.status === 'out_of_delivery'
@@ -79,21 +81,7 @@ export class ProductController {
                         }
                     }
                 }
-            })
-        }
-
-        if (status === 'inactive') {
-            const users = await storage.user.find({status: 'active'})
-
-            users.map(async user => {
-                const index = user.liked_products.indexOf(product._id)
-
-                if (index > -1) {
-                    user.liked_products.splice(index)
-                    user.total_liked_products -= 1
-                    await user.save()
-                }
-            })
+            }
         }
 
         if (product.author === 0 && author && admin) {
@@ -123,7 +111,9 @@ export class ProductController {
         }
 
         if (orders.length > 0) {
-            orders.map(async order => {
+            for (let i = 0; i < orders.length; i++) {
+                const order = orders[i]
+
                 if (
                     order.status === 'process' || order.status === 'active' ||
                     order.status === 'approved' || order.status === 'out_of_delivery'
@@ -137,19 +127,18 @@ export class ProductController {
                         }
                     }
                 }
-
-            })
+            }
         }
 
-        users.map(async user => {
-            const index = user.liked_products.indexOf(product._id)
+        for (let i = 0; i < users.length; i++) {
+            const user = users[i], index = user.liked_products.indexOf(product._id)
 
             if (index > -1) {
                 user.liked_products.splice(index)
                 user.total_liked_products -= 1
                 await user.save()
             }
-        })
+        }
 
         await storage.product.delete({ _id })
 

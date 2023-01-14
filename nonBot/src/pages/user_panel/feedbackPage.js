@@ -66,7 +66,7 @@ const ufs3 = async (bot, _id, lang, text) => {
 
   const feedback = await getOneFeedback({_id}), user = await getUser({telegram_id: feedback.author})
 
-  if (feedback.mark === kb.options.feedback.uz || feedback.mark === kb.options.feedback.ru) {
+  if (feedback.mark === kb.options.feedback.uz.good || feedback.mark === kb.options.feedback.ru.good) {
     await updateFeedback({_id: feedback._id}, {action: 'done'})
   }
 
@@ -112,6 +112,8 @@ const ufs4 = async (bot, id, lang) => {
       clause += `Holat - ${status}\n`
 
       await bot.sendMessage(id, clause)
+
+      clause = ''
     }
 
     if (lang === kb.language.uz) {

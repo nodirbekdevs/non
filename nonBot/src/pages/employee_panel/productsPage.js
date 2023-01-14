@@ -3,9 +3,9 @@ const keyboard = require('./../../helpers/keyboard')
 const {getProducts} = require('./../../controllers/productController')
 
 const ps0 = async (bot, chat_id) => {
-    await bot.sendMessage(chat_id, "Mahsulotlar bo'limida nima qilamiz", {
-      reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.products}
-    })
+  await bot.sendMessage(chat_id, "Mahsulotlar bo'limida nima qilamiz", {
+    reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.products}
+  })
 }
 
 const ps1 = async (bot, chat_id) => {
@@ -14,15 +14,19 @@ const ps1 = async (bot, chat_id) => {
   const products = await getProducts({}), kbb = keyboard.employee.products
 
   if (products.length > 0) {
-    products.map(async product => {
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i]
+
       message += `Nomi: ${product.product_name}\n`
       message += `Tavsifi: ${product.description}\n`
       message += `Narxi: ${product.price}`
 
       await bot.sendPhoto(chat_id, product.image, {
-        caption: message, reply_markup: {resize_keyboard: true, keyboard: kbb}}
-        )
-    })
+        caption: message, reply_markup: {resize_keyboard: true, keyboard: kbb}
+      })
+
+      message = ""
+    }
   } else {
     await bot.sendMessage(chat_id, "Hali mahsulotlar yo'q", {
       reply_markup: {resize_keyboard: true, keyboard: kbb}

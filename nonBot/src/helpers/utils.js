@@ -73,7 +73,7 @@ const inline_calendar = (year, month, current_date) => {
 
   console.log(buttons)
 
-  const last_line = buttons[buttons.length-1]
+  const last_line = buttons[buttons.length - 1]
 
   console.log(last_line)
 
@@ -196,14 +196,12 @@ const bio = (data, kw, lang) => {
     message += `Ismingiz - ${data.name}.\n`
     message += `Telefon raqamingiz - ${data.number}.\n`
     message += `\nNimani o'zgartirmoqchisiz`
-  }
-  else if (kw === 'EMPLOYEE') {
+  } else if (kw === 'EMPLOYEE') {
     message += `Ma'lumotlaringiz: \n`
     message += `Ismingiz - ${data.name}.\n`
     message += `Telefon raqamingiz - ${data.number}\n`
     message += `\n Nimani o'zgartirmoqchisiz`
-  }
-  else if (kw === 'USER') {
+  } else if (kw === 'USER') {
     if (lang === kb.language.uz) {
       message += `Ma'lumotlaringiz:\n`
       message += `Ismingiz - ${data.name}.\n`
@@ -542,12 +540,14 @@ const get_report = async (data, lang, kw, options = null) => {
         clause = `${item.product} - ${item.quantity} - ${item.price}\n`
 
         report += clause
+
+        clause = ''
       }
 
       await bot.sendMessage(chat_id, report, {
         reply_markup: {
           inline_keyboard: [[
-            {text: 'Yetkazib berish', callback_data: JSON.stringify({phrase: 'deliver', id: order._id})}
+            {text: 'Yetkazib berish', callback_data: JSON.stringify({phrase: 'DELIVER', id: order._id})}
           ]]
         }
       })
@@ -561,10 +561,13 @@ const get_report = async (data, lang, kw, options = null) => {
       const order = data[i], items = order.items
 
       for (let i = 0; i < items.length; i++) {
-        const item = await getItem({_id: items[i]}),
-          clause = `${item.product} - ${item.quantity}\n`
+        const item = await getItem({_id: items[i]})
+
+        clause = `${item.product} - ${item.quantity}\n`
 
         report += clause
+
+        clause = ""
       }
 
       await bot.sendMessage(chat_id, report, {
@@ -574,6 +577,8 @@ const get_report = async (data, lang, kw, options = null) => {
           }]]
         }
       })
+
+      report = ""
     }
   }
 
@@ -603,8 +608,6 @@ const get_report = async (data, lang, kw, options = null) => {
 
     report += information
 
-    information = null
-
     return report
   }
 
@@ -620,21 +623,25 @@ const get_report = async (data, lang, kw, options = null) => {
         clause += `Narxi: ${item.price}\n`
 
         report += clause
+
+        clause = ''
       }
 
-      information += `\nMahsulot turi: ${data.total_items}\n`
+      information += `\nMahsulot turi: ${order.total_items}\n`
       information += `Yetkazib berish: Mavjud\n`
-      information += `Yetkazib berish manzili: ${data.location.place_name}\n`
-      information += `Kuni: ${data.date}\n`
-      information += `Vaqti: ${data.time}\n`
-      information += `Narxi: ${data.price}\n`
+      information += `Yetkazib berish manzili: ${order.location.place_name}\n`
+      information += `Kuni: ${order.date}\n`
+      information += `Vaqti: ${order.time}\n`
+      information += `Narxi: ${order.price}\n`
       information += `Holati: Yetkazib berilgan`
 
       report += information
 
-      information = null
+      information = ""
 
       await bot.sendMessage(chat_id, report, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
+
+      report = ""
     }
   }
 }

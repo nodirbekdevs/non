@@ -5,7 +5,7 @@ const Employee = model('Employee', new Schema({
   _id: {type: String, default: v4},
   telegram_id: {type: Number, unique: true},
   admin: {type: Number, ref: 'Admin', required: true},
-  branch: {type: String, ref: 'Branch'},
+  branch: {type: String, ref: 'Branch', default: ''},
   name: {type: String, default: ''},
   username: {type: String, default: ''},
   password: {type: String, default: ''},

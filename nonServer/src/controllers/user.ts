@@ -66,26 +66,35 @@ export class UserController {
     })
 
     update = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const { lang, id } = res.locals, _id = req.params.id
+        const { lang, id } = res.locals, _id = req.params.id, { status, username } = req.body
 
         let user = await storage.user.findOne({_id: id})
 
-        if (user.orders.length) {
-            user.orders.map(async order => {
-                const o = await storage.order.findOne({_id: order})
+        if (username) {
+            if (user.username !== username) {
+                const salt = await genSalt()
+                req.body.password = await hash(username, salt)
+            }
+        }
 
-                if (!o.should_deliver) {
-                    if (o.status !== 'accepted') {
-                        return next(new AppError(403, 'user_403'))
+        if (status === 'inactive') {
+            if (user.orders.length > 0) {
+                for (let i = 0; i < user.orders.length; i++) {
+                    const order = await storage.order.findOne({_id: user.orders[i]})
+
+                    if (!order.should_deliver) {
+                        if (order.status !== 'accepted') {
+                            return next(new AppError(403, 'user_403'))
+                        }
+                    }
+
+                    if (order.should_deliver) {
+                        if (order.status === 'active' || order.status === 'approved' || order.status === 'out_of_delivery') {
+                            return next(new AppError(403, 'user_403'))
+                        }
                     }
                 }
-
-                if (o.should_deliver) {
-                    if (o.status === 'active' || o.status === 'approved' || o.status === 'out_of_delivery') {
-                        return next(new AppError(403, 'user_403'))
-                    }
-                }
-            })
+            }
         }
 
         if (user.feedback.length) {
@@ -114,45 +123,45 @@ export class UserController {
 
         let user = await storage.user.findOne({ _id: id })
 
-        if (user.orders.length) {
-            user.orders.map(async order => {
-                const o = await storage.order.findOne({_id: order})
+        if (user.orders.length > 0) {
+            for (let i = 0; i < user.orders.length; i++) {
+                const order = await storage.order.findOne({_id: user.orders[i]})
 
-                if (!o.should_deliver) {
-                    if (o.status !== 'accepted') {
+                if (!order.should_deliver) {
+                    if (order.status !== 'accepted') {
                         return next(new AppError(403, 'user_403'))
                     }
                 }
 
-                if (o.should_deliver) {
-                    if (o.status === 'acrive' || o.status === 'approved' || o.status === 'out_of_delivery') {
-                        return next(new AppError(403, 'employee_403'))
+                if (order.should_deliver) {
+                    if (order.status === 'active' || order.status === 'approved' || order.status === 'out_of_delivery') {
+                        return next(new AppError(403, 'user_403'))
                     }
                 }
-            })
+            }
         }
 
-        if (user.feedback.length) {
-            user.feedback.map(async feedback => {
-                const f = await storage.feedback.findOne({_id: feedback})
+        if (user.feedback.length > 0) {
+            for (let i = 0; i < user.feedback.length; i++) {
+                const feedback = await storage.feedback.findOne({_id: user.feedback[i]})
 
-                if (f.status === 'process') {
+                if (feedback.status === 'process') {
                     return next(new AppError(403, 'user_403'))
                 }
-            })
+            }
         }
 
-        if (user.liked_products.length) {
-            user.liked_products.map(async product => {
-                const p = await storage.product.findOne({_id: product})
+        if (user.liked_products.length > 0) {
+            for (let i = 0; i < user.liked_products.length; i++) {
+                const product = await storage.product.findOne({_id: user.liked_products[i]}),
+                    index = product.liked_users.indexOf(user._id)
 
-                const index = p.liked_users.indexOf(user._id)
                 if (index > -1) {
-                    p.liked_users.splice(index)
-                    p.total_liked_users -= 1
-                    await p.save()
+                    product.liked_users.splice(index)
+                    product.total_liked_users -= 1
+                    await product.save()
                 }
-            })
+            }
         }
 
         await storage.user.delete({ _id })

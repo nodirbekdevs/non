@@ -35,14 +35,6 @@ const updateProduct = async (query, data) => {
 
 const deleteProduct = async (query) => {
   try {
-    const product = await getProduct(query)
-    const admin = await getAdmin({_id: product.author})
-    if (admin) {
-      admin.total_products -= 1
-      const index = admin.products.indexOf(product._id)
-      if (index > -1) admin.products.splice(index)
-      await admin.save()
-    }
     return await Product.findOneAndDelete(query)
   } catch (e) {
     console.log(e)

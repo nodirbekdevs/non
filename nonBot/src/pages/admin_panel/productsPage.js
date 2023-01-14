@@ -17,21 +17,25 @@ const aps1 = async (bot, chat_id) => {
   const products = await getProducts({}), active_products = await countProduct({status: 'active'})
 
   if (products.length > 0) {
-    products.map(async item => {
-      const rating = determine_the_rating(item)
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i], author = await getAdmin({telegram_id: product.author})
+        //  , rating = determine_the_rating(product)
 
-      message += `Muallif - ${item.author}\n`
-      message += `Nomi - ${item.product_name}\n`
-      message += `Tavsifi - ${item.description}\n`
-      message += `Reytingi - ${rating}\n`
-      message += `Sotilgani - ${item.num_of_sold}\n`
-      message += `Narxi - ${item.price}\n`
-      message += `Holati - ${item.status}`
 
-      await bot.sendPhoto(chat_id, item.image, {
+      message += `Muallif - ${author.name}\n`
+      message += `Nomi - ${product.product_name}\n`
+      message += `Tavsifi - ${product.description}\n`
+      // message += `Reytingi - ${rating}\n`
+      message += `Sotilgani - ${product.num_of_sold}\n`
+      message += `Narxi - ${product.price}\n`
+      message += `Holati - ${product.status}`
+
+      await bot.sendPhoto(chat_id, product.image, {
         caption: message, reply_markup: {resize_keyboard: true, keyboard: keyboard.admin.products}
       })
-    })
+
+      message = ""
+    }
   } else if (products.length === 0) {
     message = "Hali mahsulotlar qo'shilmagan"
     await bot.sendMessage(chat_id, message, {
@@ -100,6 +104,8 @@ const aps6 = async (bot, chat_id, _id, text) => {
       keyboard: keyboard.options.confirmation.uz
     }
   })
+
+  message = ""
 }
 
 const aps7 = async (bot, chat_id, _id, text) => {

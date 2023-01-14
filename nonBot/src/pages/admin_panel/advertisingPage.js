@@ -187,17 +187,17 @@ const adminAdvertising = async (bot, chat_id, text) => {
   if (text === kb.admin.advertising.add) await aas3(bot, chat_id)
 
   if (advertising) {
-    if (advertising.step === 0) await aas4(bot, chat_id, advertising._id, text)
-
-    if (advertising.step === 1) await aas5(bot, chat_id, advertising._id, text)
-
-    if (advertising.step === 2) await aas6(bot, chat_id, advertising, text)
-
-    if (advertising.step === 3) await aas7(bot, chat_id, advertising, text)
-
     if (text === kb.options.back.uz) {
       await deleteAdvertising({_id: advertising._id})
       await aas0(bot, chat_id)
+    } else if (text !== kb.options.back.uz) {
+      if (advertising.step === 0) await aas4(bot, chat_id, advertising._id, text)
+
+      if (advertising.step === 1) await aas5(bot, chat_id, advertising._id, text)
+
+      if (advertising.step === 2) await aas6(bot, chat_id, advertising, text)
+
+      if (advertising.step === 3) await aas7(bot, chat_id, advertising, text)
     }
   }
 }

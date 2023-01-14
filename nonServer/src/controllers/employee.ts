@@ -86,8 +86,7 @@ export class EmployeeController {
     update = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { lang, id } = res.locals, _id = req.params.id, {username} = req.body
 
-        let employee = await storage.employee.findOne({_id}),
-            orders = await storage.order.find({supplier: employee.telegram_id})
+        let employee = await storage.employee.findOne({_id})
 
         if (username && employee.username !== username) {
             const salt = await genSalt()
@@ -96,14 +95,6 @@ export class EmployeeController {
 
         if (employee.is_idler) {
             return next(new AppError(403, 'employee_403'))
-        }
-
-        if (orders) {
-            orders.map(order => {
-                if (order.status === 'approved' || order.status === 'out_of_delivery') {
-                    return next(new AppError(403, 'employee_403'))
-                }
-            })
         }
 
         if (employee.feedback.length) {
@@ -130,21 +121,10 @@ export class EmployeeController {
     delete = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { lang, id } = res.locals, _id = req.params.id
 
-        let employee = await storage.employee.findOne({ _id }),
-            orders = await storage.order.find({supplier: employee.telegram_id})
-
-        console.log(employee)
+        let employee = await storage.employee.findOne({ _id })
 
         if (employee.is_idler) {
             return next(new AppError(403, 'employee_403'))
-        }
-
-        if (orders) {
-            orders.map(order => {
-                if (order.status !== 'delivered') {
-                    return next(new AppError(403, 'employee_403'))
-                }
-            })
         }
 
         if (employee.feedback.length) {

@@ -86,27 +86,21 @@ export class FeedbackController {
 
         const feedback = await storage.feedback.findOne({_id})
 
+        const response = await storage.user.findOne({telegram_id: feedback.author})
+            ? await storage.user.findOne({telegram_id: feedback.author})
+            : await storage.employee.findOne({telegram_id: feedback.author})
+
         if (feedback.status === 'process' || feedback.action === 'seen' || feedback.action === 'done') {
             return next(new AppError(403, 'feedback_403'))
         }
 
-        if (feedback.is_employee) {
-            const employee = await storage.employee.findOne({_id: feedback.author})
-            const index = employee.feedback.indexOf(feedback._id)
-            if (index > -1) {
-                employee.feedback.splice(index)
-                employee.total_feedback -= 1
-                await employee.save()
-            }
-        }
+        if (response) {
+            const index = response.feedback.indexOf(feedback._id)
 
-        if (!feedback.is_employee) {
-            const user = await storage.user.findOne({_id: feedback.author})
-            const index = user.feedback.indexOf(feedback._id)
             if (index > -1) {
-                user.feedback.splice(index)
-                user.total_feedback -= 1
-                await user.save()
+                response.feedback.splice(index)
+                response.total_feedback -= 1
+                await response.save()
             }
         }
 

@@ -71,10 +71,10 @@ const aos3 = async (bot, chat_id, _id) => {
 
   order_id = _id
 
-  if (order.step === 9) {
-    await updateOrder({_id}, {step: 10})
+  if (order.step === 8) {
+    await updateOrder({_id}, {step: 9})
 
-    const employees = await getEmployees({is_idler: false, task: kb.options.task.supplier})
+    const employees = await getEmployees({is_idler: false, task: kb.options.task.supplier, status: "active"})
 
     employees.map(e => buttons.push([{text: e.name}]))
 
@@ -92,14 +92,14 @@ const aos3 = async (bot, chat_id, _id) => {
 }
 
 const aos4 = async (bot, chat_id, _id) => {
-  await updateOrder({_id}, {step: 10})
+  await updateOrder({_id}, {step: 8})
   await aos2(bot, chat_id)
 }
 
 const aos5 = async (bot, chat_id, _id, text) => {
   const employee = await getEmployee({name: text})
 
-  await updateOrder({_id}, {supplier: employee.telegram_id, step: 11, status: 'approved'})
+  await updateOrder({_id}, {supplier: employee.telegram_id, step: 10, status: 'approved'})
 
   const order = await getOrder({_id}), items = order.items
 
@@ -131,7 +131,7 @@ const adminOrders = async (bot, chat_id, text) => {
     if (order) {
       if (text === kb.options.back.uz) await aos4(bot, chat_id, order._id)
 
-      if (order.step === 10) await aos5(bot, chat_id, order._id, text)
+      if (order.step === 9) await aos5(bot, chat_id, order._id, text)
     }
   } catch (e) {
     console.log(e)

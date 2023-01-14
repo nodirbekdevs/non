@@ -1,7 +1,7 @@
 const Branch = require('./../models/branchModel')
 const {getAdmin, updateAdmin} = require('./adminController')
 const {getAllFeedback} = require('./feedbackController')
-const {updateManyEmployees} = require('./employeeController')
+const {updateEmployee, updateManyEmployees} = require('./employeeController')
 
 const getBranches = async (query) => {
   try {
@@ -50,28 +50,32 @@ const updateBranch = async (query, data, text) => {
 const deleteBranch = async (query) => {
   try {
     let status = true
-    const branch = await getBranch(query),
-      orders = await getBranches({branch: branch._id}),
-      feedback = await getAllFeedback({branch: branch._id})
+    const branch = await getBranch(query), employees = branch.employees,
+      orders = await getBranches({branch: branch._id}), feedback = await getAllFeedback({branch: branch._id})
 
-    orders.map(order => {
+    for (let i = 0; i < orders.length; i++) {
+      const order = orders[i]
+
       if (order.status !== 'delivered' || order.status !== 'accepted') {
         status = false
       }
-    })
+    }
 
+    for (let i = 0; i < feedback.length; i++) {
+      const feed = feedback[i]
 
-    feedback.map(feed => {
       if (feed !== 'active') {
         status = false
       }
-    })
-
-    if (branch.employees.length > 0) status = false
+    }
 
     if (status) {
       await updateAdmin({telegram_id: branch.admin}, {branch: ''})
-      await updateManyEmployees({branch: branch._id}, {branch: ''})
+      // await updateManyEmployees({branch: branch._id}, {branch: ''})
+
+      for (let i = 0; i < employees.length; i++) {
+        await updateEmployee({branch: branch._id}, {branch: ''})
+      }
     }
 
     return status

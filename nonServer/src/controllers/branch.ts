@@ -50,9 +50,9 @@ export class BranchController {
             await storage.branch.update({admin: admin}, {admin: ''})
         }
 
-        const branch = await storage.branch.create({ admin: admin.telegram_id, ...req.body })
+        const branch = await storage.branch.create({ admin: admin, ...req.body })
 
-        await storage.admin.update({ _id: admin }, { branch: branch._id })
+        await storage.admin.update({ telegram_id: admin }, { branch: branch._id })
 
         res.status(201).json({
             success: true,
@@ -166,7 +166,7 @@ export class BranchController {
             await storage.employee.updateMany({branch: branch._id}, {branch: '', status: 'inactive'})
         }
 
-        await storage.employee.delete({ _id })
+        await storage.branch.delete({ _id })
 
         res.status(200).json({
             success: true,

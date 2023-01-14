@@ -1,5 +1,4 @@
 const Employee = require('./../models/employeeModel')
-const {getAdmin} = require('./adminController')
 
 const getEmployees = async (query) => {
   try {
@@ -19,9 +18,12 @@ const getEmployee = async (query) => {
 
 const makeEmployee = async (data) => {
   try {
-    const admin = await getAdmin({telegram_id: data.admin})
+    // let employee
+    // const branch = await getBranch({_id: data.branch})
+    // employee = await Employee.create({admin: branch.admin, branch: branch._id})
+    // return employee
 
-    return await Employee.create({...data, branch: admin.branch})
+    return await Employee.create(data)
   } catch (e) {
     console.log(e)
   }
@@ -50,6 +52,7 @@ const deleteEmployee = async (query) => {
     console.log(e)
   }
 }
+
 
 const countEmployees = async (query) => {
   try {

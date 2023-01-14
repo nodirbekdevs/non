@@ -174,7 +174,6 @@ module.exports = {
       [kb.main.uz]
     ],
 
-
     feedback: [
       [kb.employee.feedback.add, kb.employee.feedback.my_feedback],
       [kb.main.uz]

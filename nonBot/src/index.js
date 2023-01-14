@@ -15,37 +15,32 @@ bot.setMyCommands(
 ).then()
 
 bot.on('message', async message => {
-  const query = {telegram_id: message.from.id, status: 'active'}, admin = await getAdmin(query), employee = await getEmployee(query),
-    work = (await getWorks({}))[0]
-
-  console.log("Kevotti")
-
-  console.log(admin)
-  console.log(employee)
+  const query = {telegram_id: message.from.id, status: 'active'}, admin = await getAdmin(query),
+    employee = await getEmployee(query), work = (await getWorks({}))[0]
 
   try {
     if (admin) await adminPanel(bot, message, admin)
-    else if (employee) {
-      console.log("Kevotti")
-      await employeePanel(bot, message, employee)
-    }
-    else if (work.type === "On") await userPanel(bot, message)
-    if (work.type === "Off") await bot.sendMessage(message.from.id, work.description)
-    bot.stop
+    else if (employee) await employeePanel(bot, message, employee)
+    else await userPanel(bot, message)
+    // else if (work.type === "On") await userPanel(bot, message)
+    // if (work.type === "Off") await bot.sendMessage(message.from.id, work.description)
   } catch (e) {
     console.log(e + '')
   }
 })
 
 bot.on('callback_query', async query => {
-  const query_id = query.id, telegram_id = query.from.id, mid = query.message.message_id, data = query.data, {phrase, id} = JSON.parse(data)
+  const query_id = query.id, telegram_id = query.from.id, mid = query.message.message_id,
+    data = query.data, {phrase, id} = JSON.parse(data)
 
-  const request = {telegram_id},  user = await getUser(request),
+  const request = {telegram_id}, user = await getUser(request),
     admin = await getAdmin(request), employee = await getEmployee(request)
 
   if (admin) {
     if (phrase === "SEND_AD") await aas8(bot, telegram_id, id)
-    if (phrase === 'deliver') await aos3(bot, telegram_id, id)
+    if (phrase === 'DELIVER') {
+      await aos3(bot, telegram_id, id)
+    }
   }
 
   if (user) {
@@ -61,5 +56,9 @@ bot.on('callback_query', async query => {
     if (phrase === 'ADD' || phrase === 'REMOVE' || phrase === 'BASKET') await ups4(bot, telegram_id, user.lang, phrase, id)
   }
 
-  if (employee) await eos2(bot, telegram_id, id)
+  if (employee) {
+    if (phrase === 'deliver') {
+      await eos2(bot, telegram_id, id)
+    }
+  }
 })

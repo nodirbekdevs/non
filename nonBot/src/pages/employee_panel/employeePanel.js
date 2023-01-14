@@ -9,8 +9,6 @@ const {hash, genSalt} = require('bcrypt')
 const employeePanel = async (bot, message, employee) => {
   let text, username = '', password = ''
 
-  console.log("Kevotti")
-
   const chat_id = message.chat.id, name = employee.name
 
   if (message) {
@@ -34,8 +32,6 @@ const employeePanel = async (bot, message, employee) => {
         await updateEmployee({telegram_id: chat_id}, {username, password})
       }
     }
-
-    console.log("Kevotti")
 
     await employeeMainPage(bot, chat_id, text)
     await employeeSettings(bot, employee, text)

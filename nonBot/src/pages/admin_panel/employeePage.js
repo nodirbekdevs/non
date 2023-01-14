@@ -12,18 +12,22 @@ const aes0 = async (bot, chat_id) => {
 }
 
 const aes1 = async (bot, chat_id) => {
-  let message
+  let message = ''
   const employees = await getEmployees({}), active_employees = await countEmployees({status: 'active'})
 
   if (employees.length > 0) {
-    employees.map(async employee => {
+    for (let i = 0; i < employees.length; i++) {
+      const employee = employees[i]
+
       message += `Ismi - ${employee.name}\n`
       message += `Username - ${employee.username}\n`
       message += `Telefon raqami - ${employee.number}\n`
-      message += ` Vazifasi - ${employee.task}`
+      message += `Vazifasi - ${employee.task}`
 
       await bot.sendMessage(chat_id, message)
-    })
+
+      message = ''
+    }
   } else if (employees.length === 0) {
     message = "Hali xodimlar qo'shilmagan"
     await bot.sendMessage(chat_id, message)
@@ -85,7 +89,7 @@ const aes7 = async (bot, chat_id, _id, text) => {
 
   const employee = await getEmployee({_id})
 
-  message += `Telegram-ID - ${employee.telegram_id}`
+  message += `Telegram-ID - ${employee.telegram_id}\n`
   message += `Ismi - ${employee.name}\n`
   message += `Username - ${employee.username}\n`
   message += `Telefon raqami - ${employee.number}\n`
@@ -130,21 +134,21 @@ const adminEmployees = async (bot, chat_id, text) => {
 
 
   if (employee) {
-    if (employee.step === 0) await aes3(bot, chat_id, employee._id, text)
-
-    if (employee.step === 1) await aes4(bot, chat_id, employee._id, text)
-
-    if (employee.step === 2) await aes5(bot, chat_id, employee._id, text)
-
-    if (employee.step === 3) await aes6(bot, chat_id, employee, text)
-
-    if (employee.step === 4) await aes7(bot, chat_id, employee._id, text)
-
-    if (employee.step === 5) await aes8(bot, chat_id, employee._id, text)
-
     if (text === kb.options.back.uz) {
       await updateEmployee({_id: employee._id}, {step: 7, status: 'inactive'})
       await aes0(bot, chat_id)
+    } else if (text !== kb.options.back.uz) {
+      if (employee.step === 0) await aes3(bot, chat_id, employee._id, text)
+
+      if (employee.step === 1) await aes4(bot, chat_id, employee._id, text)
+
+      if (employee.step === 2) await aes5(bot, chat_id, employee._id, text)
+
+      if (employee.step === 3) await aes6(bot, chat_id, employee, text)
+
+      if (employee.step === 4) await aes7(bot, chat_id, employee._id, text)
+
+      if (employee.step === 5) await aes8(bot, chat_id, employee._id, text)
     }
   }
 }

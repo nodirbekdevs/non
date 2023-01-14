@@ -76,36 +76,19 @@ export class ItemController {
             return next(new AppError(403, 'item_403'))
         }
 
-        const orders = await storage.order.find({})
-
-        orders.map(async order => {
-            if (order.items.includes(item._id)) {
-                if (
-                    order.status === 'process' || order.status === 'inactive' ||
-                    order.status === 'approved' || order.status === 'out_of_delivery' ||
-                    order.status === 'delivered' || order.status === 'accepted'
-                ) {
-                    return next(new AppError(403, 'item_403'))
-                } else {
-                    const index = order.items.indexOf(item._id)
-                    if (index > -1) {
-                        order.items.splice(index)
-                        order.total_items -= 1
-                        await order.save()
-                    }
-                }
-            }
-        })
-
         if (item.order) {
             const order = await storage.order.findOne({_id: item.order})
 
-            const index = order.items.indexOf(item._id)
+            if (order.status === 'process' || order.status === 'out_of_delivery') {
+                return next(new AppError(403, 'item_403'))
+            } else {
+                const index = order.items.indexOf(item._id)
 
-            if (index > -1) {
-                order.items.splice(index)
-                order.total_items -= 1
-                await order.save()
+                if (index > -1) {
+                    order.items.splice(index)
+                    order.total_items -= 1
+                    await order.save()
+                }
             }
         }
 

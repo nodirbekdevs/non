@@ -14,7 +14,8 @@ db.once('open', () => {
 })
 
 export default class Database {
-    url = `mongodb://localhost:${config.MongoPort}/${config.MongoDatabase}`
+    // url = `mongodb://localhost:${config.MongoPort}/${config.MongoDatabase}`
+    url = `mongodb+srv://nyunusov:necshuhrat@nonproject.ygnkhxi.mongodb.net/?retryWrites=true&w=majority`
 
     constructor() {
         logger.info(`DB: DATABASE URL: ${this.url}`)

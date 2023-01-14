@@ -9,6 +9,7 @@ export interface IFeedback extends Document {
     mark: string
     reason: string
     action: string
+    is_read: boolean
     step: number
     status: string
     created_at: Date
@@ -43,6 +44,10 @@ const feedbackSchema = new Schema({
       type: String,
       enum: ['process', 'seen', 'done'],
       default: 'process'
+    },
+    is_read: {
+      type: Boolean,
+      default: false
     },
     step: {
         type: Number,

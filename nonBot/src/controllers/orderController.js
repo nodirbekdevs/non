@@ -23,11 +23,7 @@ const makeOrder = async (telegram_id) => {
   try {
     const admin = (await getAdmins({}))[0]
     const user = await getUser({telegram_id})
-    const orderItem = await Order.create({admin: admin.telegram_id, author: user.telegram_id})
-    user.orders.push(orderItem._id)
-    user.total_orders += 1
-    await user.save()
-    return orderItem
+    return await Order.create({admin: admin.telegram_id, author: user.telegram_id})
   } catch (e) {
     console.log(e)
   }
@@ -43,17 +39,7 @@ const updateOrder = async (query, data) => {
 
 const deleteOrder = async (query) => {
   try {
-    const order = await getOrder(query), user = await getUser({telegram_id: order.author}),
-      employee = await getEmployee({_id: order.supplier})
-
-    if (user) {
-      const index = user.orders.indexOf(order._id)
-      if (index > -1) {
-        user.orders.splice(index, 1)
-        user.total_orders -= 1
-        await user.save()
-      }
-    }
+    const order = await getOrder(query), employee = await getEmployee({_id: order.supplier})
 
     if (employee) {
       const index = employee.orders.indexOf(order._id)

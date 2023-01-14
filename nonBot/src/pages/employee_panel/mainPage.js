@@ -7,8 +7,8 @@ const emp = async (bot, chat_id) => {
   })
 }
 
-const employeeMainPage = async (bot, chat_id, name, text) => {
-  if (text === kb.start || text === kb.main.uz) await emp(bot, chat_id, name)
+const employeeMainPage = async (bot, chat_id, text) => {
+  if (text === kb.start || text === kb.main.uz) await emp(bot, chat_id)
 
 }
 

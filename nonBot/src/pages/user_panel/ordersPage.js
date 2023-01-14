@@ -157,7 +157,16 @@ const uos7 = async (bot, chat_id, _id, lang, text) => {
 
   const order = await getOrder({_id}), items = order.items
 
-  for (let i = 0; i < items.length; i++) await updateItem({_id: items[i], author: chat_id, order: order._id, product: bread, step: 1, status: 'active'}, {step: 2})
+  for (let i = 0; i < items.length; i++) {
+    await updateItem({
+      _id: items[i],
+      author: chat_id,
+      order: order._id,
+      product: bread,
+      step: 1,
+      status: 'active'
+    }, {step: 2})
+  }
 
   if (lang === kb.language.uz) {
     message = `${bread} ga yana qo'shamizmi yoki ayiramizmi ?`
@@ -211,7 +220,7 @@ const uos8 = async (bot, chat_id, _id, lang, text) => {
 const uos9 = async (bot, chat_id, _id, lang, text) => {
   let message, item_id, order = await getOrder({_id})
 
-  const user = await getUser({telegram_id: chat_id}), items = order.items
+  const items = order.items
 
   for (let i = 0; i < items.length; i++) {
     let product_price, quantity, price
@@ -220,7 +229,6 @@ const uos9 = async (bot, chat_id, _id, lang, text) => {
     if (item) {
       product_price = item.price / item.quantity
       quantity = parseInt(text)
-      console.log(quantity)
       if (quantity < 0) quantity *= -1
       item_id = item._id
 
@@ -258,13 +266,6 @@ const uos9 = async (bot, chat_id, _id, lang, text) => {
             item_id = ""
 
             if (order.items.length === 0 && order.total_items === 0) {
-              const index = user.orders.indexOf(order._id)
-
-              if (index > -1) {
-                user.orders.slice(order._id, 1)
-                user.total_orders -= 1
-                await user.save()
-              }
               await deleteOrder({_id: order._id})
             }
           }
@@ -290,14 +291,6 @@ const uos9 = async (bot, chat_id, _id, lang, text) => {
             item_id = ""
 
             if (order.items.length === 0 && order.total_items === 0) {
-              const index = user.orders.indexOf(order._id)
-
-              if (index > -1) {
-                user.orders.slice(order._id, 1)
-                user.total_orders -= 1
-                await user.save()
-              }
-
               await deleteOrder({_id: order._id})
             }
           }
@@ -334,7 +327,7 @@ const uos9 = async (bot, chat_id, _id, lang, text) => {
 
 const uos10 = async (bot, chat_id, _id, lang, text) => {
   const order = await getOrder({_id}), message = await get_report(order, lang, 'BK'),
-    kbb = (lang === kb.language.uz) ? keyboard.options.order.uz : keyboard.options.order.ru
+    kbb = (lang === kb.language.uz) ? keyboard.options.order.uz : keyboard.options.order.ru, items = order.items
 
   if (text === kb.options.back.uz || text === kb.options.back.ru) {
     if (order.step === 1) {
@@ -345,14 +338,18 @@ const uos10 = async (bot, chat_id, _id, lang, text) => {
     if (order.step === 2) {
       await updateOrder({_id}, {step: 0})
 
-      for (let i = 0; i < order.items.length; i++) await updateItem({step: 2}, {step: 1})
+      for (let i = 0; i < items.length; i++) {
+        await updateItem({_id: items[i], step: 2}, {step: 1})
+      }
 
       await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
     }
     if (order.step === 3) {
       await updateOrder({_id}, {step: 0})
 
-      for (let i = 0; i < order.items.length; i++) await updateItem({step: 2}, {step: 1, situation: ''})
+      for (let i = 0; i < items.length; i++) {
+        await updateItem({_id: items[i], step: 2}, {step: 1, situation: ''})
+      }
 
       await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
     }
@@ -362,17 +359,10 @@ const uos10 = async (bot, chat_id, _id, lang, text) => {
 const uos11 = async (bot, chat_id, _id, lang) => {
   let message, kbb
 
-  const order = await getOrder({_id}), items = order.items, user = await getUser({telegram_id: order.author}),
-    index = user.orders.indexOf(order._id)
+  const order = await getOrder({_id}), items = order.items
 
   for (let i = 0; i < items.length; i++) {
-    await deleteItem({_id: [items[i]]})
-  }
-
-  if (index > -1) {
-    user.orders.slice(index)
-    user.total_orders -= 1
-    await user.save()
+    await deleteItem({_id: items[i]})
   }
 
   await deleteOrder({_id})
@@ -494,11 +484,17 @@ const uos18 = async (bot, chat_id, _id, lang, text) => {
   if (text === kb.options.confirmation.uz || text === kb.options.confirmation.ru) {
     await updateOrder({_id}, {step: 8, status: 'active'})
 
-    const order = await getOrder({_id})
-    let report = await get_report(order, lang, 'ONE'), items = order.items
+    const order = await getOrder({_id}), user = await getUser({telegram_id: chat_id}), items = order.items
+    let report = await get_report(order, lang, 'ONE')
 
     for (let i = 0; i < items.length; i++) {
       await updateItem({_id: items[i]}, {step: 3, status: 'ordered'})
+    }
+
+    if (user) {
+      user.orders.push(order._id)
+      user.total_orders += 1
+      await user.save()
     }
 
     report += '\n\nYangi buyurtma berildi'

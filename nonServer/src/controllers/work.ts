@@ -77,15 +77,15 @@ export class WorkController {
         }
 
         if (type === 'Off') {
-            if (orders.length) {
-                orders.map(async order => {
-                    if (order.status === 'process') {
+            if (orders.length > 0) {
+                for (let i = 0; i < orders.length; i++) {
+                    if (orders[i].status === 'process') {
                         return next(new AppError(403, 'work_403'))
                     }
-                })
+                }
             }
 
-            if (feedback.length) {
+            if (feedback.length > 0) {
                 feedback.map(async feedback => {
                     if (feedback.status === 'process') {
                         return next(new AppError(403, 'work_403'))

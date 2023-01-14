@@ -88,6 +88,8 @@ export class AdminController {
 
         let admin = await storage.admin.findOne({ _id: id })
 
+        const products = admin.products, advertisements = admin.advertisements
+
         if (admin.type === 'admin' && id !== _id) {
             return next(new AppError(403, 'admin_403'))
         }
@@ -95,6 +97,26 @@ export class AdminController {
         if (username) {
             const salt = await genSalt()
             req.body.password = await hash(username, salt)
+        }
+
+        if (products.length > 0) {
+            for (let i = 0; i < products.length; i++) {
+                const product = await storage.product.findOne({_id: products[i]})
+
+                if (product.status === 'process') {
+                    return next(new AppError(403, 'admin_403'))
+                }
+            }
+        }
+
+        if (advertisements.length > 0) {
+            for (let i = 0; i < advertisements.length; i++) {
+                const advertising = await storage.advertising.findOne({_id: advertisements[i]})
+
+                if (advertising.status === 'process') {
+                    return next(new AppError(403, 'admin_403'))
+                }
+            }
         }
 
         if (branch && admin.branch !== branch) {
@@ -125,11 +147,33 @@ export class AdminController {
 
         let admin = await storage.admin.findOne({ _id: id })
 
+        const products = admin.products, advertisements = admin.advertisements
+
         if (admin.type !== 'super_admin' || id === _id) {
             return next(new AppError(403, 'admin_403'))
         }
 
         const deleted_admin = await storage.admin.findOne({_id})
+
+        if (products.length > 0) {
+            for (let i = 0; i < products.length; i++) {
+                const product = await storage.product.findOne({_id: products[i]})
+
+                if (product.status === 'process') {
+                    return next(new AppError(403, 'admin_403'))
+                }
+            }
+        }
+
+        if (advertisements.length > 0) {
+            for (let i = 0; i < advertisements.length; i++) {
+                const advertising = await storage.advertising.findOne({_id: advertisements[i]})
+
+                if (advertising.status === 'process') {
+                    return next(new AppError(403, 'admin_403'))
+                }
+            }
+        }
 
         if (deleted_admin.branch) {
             await storage.branch.update({_id: deleted_admin.branch}, {admin: 0})

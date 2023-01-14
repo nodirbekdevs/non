@@ -30,14 +30,14 @@ const eos1 = async (bot, chat_id) => {
 }
 
 const eos2 = async (bot, chat_id, _id) => {
-  let user_info = ''
+  let user_info = '', employee_info = '', send_admin = `Buyurtma yetkazib berish uchun yo'lga chiqti\n\n`
 
   const
-    order = await getOrder({_id}),
+    order = await getOrder({_id}), employee = await getEmployee({telegram_id: chat_id}),
     user = await getUser({telegram_id: order.author}),
     message = await get_report(order, kb.language.uz, "EMPLOYEE_OUT_OF_DELIVER")
 
-  await updateOrder({_id}, {step: 12, status: 'out_of_delivery'})
+  await updateOrder({_id}, {step: 11, status: 'out_of_delivery'})
 
   order_id = _id
 
@@ -45,9 +45,19 @@ const eos2 = async (bot, chat_id, _id) => {
   user_info += `Ismi: ${user.name}\n`
   user_info += `Telefon raqami: +${user.number}`
 
+  employee_info += `Yetkazib beruvchi`
+  employee_info += `Ismi: ${employee.name}`
+  employee_info += `Telefon raqami: +${employee.number}`
+
+  send_admin += message
+
   await bot.sendMessage(chat_id, user_info)
 
   await bot.sendLocation(chat_id, order.location.latitude, order.location.longitude)
+
+  await bot.sendMessage(user.telegram_id, employee_info)
+
+  await bot.sendMessage(order.admin, send_admin)
 
   await bot.sendMessage(chat_id, message, {
     reply_markup: {resize_keyboard: true, keyboard: keyboard.options.delivered, one_time_keyboard: true}
@@ -63,13 +73,13 @@ const eos3 = async (bot, chat_id, _id) => {
 const eos4 = async (bot, chat_id, _id, text) => {
   let total = 0
 
-  await updateOrder({_id}, {signature: text, step: 13, status: 'delivered'})
+  await updateOrder({_id}, {signature: text, step: 12, status: 'delivered'})
 
   const order = await getOrder({_id}), user = await getUser({telegram_id: order.author}),
     employee = await getEmployee({telegram_id: chat_id}), items = order.items
 
   for (let i = 0; i < items.length; i++) {
-    const item = await getItem({_id: items[i]}), product = await getProduct({name: item.product})
+    const item = await getItem({_id: items[i]}), product = await getProduct({product_name: item.product})
 
     item.step = 6
     item.status = 'delivered'
@@ -102,10 +112,10 @@ const eos4 = async (bot, chat_id, _id, text) => {
 }
 
 const eos5 = async (bot, chat_id) => {
-  const orders = await getOrders({supplier: chat_id, step: 13, status: 'delivered'}), kbb = keyboard.employee.orders
+  const orders = await getOrders({supplier: chat_id, step: 12, status: 'delivered'}), kbb = keyboard.employee.orders
 
   if (orders.length > 0) {
-    await get_report(orders, kb.language.uz, "EMPLOYEE_ALL", {bot, chat_id})
+    await get_report(orders, kb.language.uz, "EMPLOYEE_ALL", {bot, chat_id, kbb})
   } else {
     const message = "Siz hali mahsulot yetkazib bermagansiz"
     await bot.sendMessage(chat_id, message, {reply_markup: {resize_keyboard: true, keyboard: kbb}})
@@ -113,9 +123,9 @@ const eos5 = async (bot, chat_id) => {
 }
 
 const employeeOrders = async (bot, chat_id, text) => {
-  const order = await getOrder({_id: order_id, supplier: chat_id, step: 12})
-    ? await getOrder({_id: order_id, supplier: chat_id, step: 12})
-    : (await getOrders({supplier: chat_id, step: 12}))[0]
+  const order = await getOrder({_id: order_id, supplier: chat_id, step: 11})
+    ? await getOrder({_id: order_id, supplier: chat_id, step: 11})
+    : (await getOrders({supplier: chat_id, step: 11}))[0]
 
   try {
     if (text === kb.employee.pages.orders) await eos0(bot, chat_id)
@@ -123,8 +133,10 @@ const employeeOrders = async (bot, chat_id, text) => {
     if (text === "Yetkazib bergan buyurtmalarim") await eos5(bot, chat_id)
 
     if (order) {
-      if ((order.step === 12 && order.attempt === 1) || text === 'Yetkazib berildi') await eos3(bot, chat_id, order._id)
-      if (order.step === 12 && order.attempt === 2) await eos4(bot, chat_id, order._id, text)
+      if ((order.step === 11 && order.attempt === 1) && text === 'Yetkazib berildi') {
+        await eos3(bot, chat_id, order._id)
+      }
+      if (order.step === 11 && order.attempt === 2) await eos4(bot, chat_id, order._id, text)
     }
   } catch (e) {
     console.log(e)

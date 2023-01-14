@@ -27,16 +27,16 @@ const efs2 = async (bot, chat_id, _id, text) => {
   const feedback = await getOneFeedback({_id})
 
   await bot.sendMessage(chat_id, `Nega ${feedback.mark} ligini sababini yozing`, {
-    reply_markup: {resize_keyboard: true, keyboard: keyboard.options.back.uz}
+    reply_markup: {resize_keyboard: true, keyboard: keyboard.options.back.uz, one_time_keyboard: true}
   })
 }
 
 const efs3 = async (bot, chat_id, _id, text) => {
-  await updateFeedback({_id}, {description: text, step: 2, status: 'active'})
+  await updateFeedback({_id}, {reason: text, step: 2, status: 'active'})
 
   const feedback = await getOneFeedback({_id}), employee = await getEmployee({telegram_id: chat_id})
 
-  if (feedback.mark === kb.options.feedback.uz || feedback.mark === kb.options.feedback.ru) {
+  if (feedback.mark === kb.options.feedback.uz.good || feedback.mark === kb.options.feedback.ru.good) {
     await updateFeedback({_id: feedback._id}, {action: 'done'})
   }
 
@@ -47,7 +47,7 @@ const efs3 = async (bot, chat_id, _id, text) => {
   }
 
   await bot.sendMessage(chat_id, `Fikringiz muvaffaqiyatli bildirildi`, {
-    reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.feedback.uz}
+    reply_markup: {resize_keyboard: true, keyboard: keyboard.employee.feedback}
   })
 }
 
@@ -71,11 +71,13 @@ const efs4 = async (bot, id) => {
       else status = 'Bajarildi'
 
       word += `Muallif - ${author.name}\n`
-      word += `Baho - ${item.title}\n`
-      word += `Sabab - ${item.description}\n`
+      word += `Baho - ${item.mark}\n`
+      word += `Sabab - ${item.reason}\n`
       word += `Holat - ${status}`
 
       await bot.sendMessage(id, word)
+
+      word = ""
     }
 
     message += `${author.name} siz umumiy ${count} fikr bildirgansiz\n`
