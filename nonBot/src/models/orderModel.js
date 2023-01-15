@@ -22,7 +22,7 @@ const Order = model('Order', new Schema({
   step: {type: Number, default: 0},
   attempt: {type: Number, default: 0},
   status: {type: String, enum: ['process', 'inactive', 'active', 'approved', 'out_of_delivery', 'delivered', 'accepted'], default: 'process'},
-  delivered_at: {type: Date},
+  received_at: {type: Date},
   created_at: {type: Date, default: Date.now}
 }))
 

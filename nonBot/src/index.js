@@ -1,3 +1,4 @@
+require('dotenv').config()
 const TelegramBot = require('node-telegram-bot-api')
 const config = require('./helpers/config')
 const db = require('./helpers/db')
@@ -13,6 +14,7 @@ bot.setMyCommands(
     {command: '/start', description: 'Start the bot'}
   ]
 ).then()
+
 
 bot.on('message', async message => {
   const query = {telegram_id: message.from.id, status: 'active'}, admin = await getAdmin(query),

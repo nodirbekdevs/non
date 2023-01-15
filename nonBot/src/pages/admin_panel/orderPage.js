@@ -107,7 +107,7 @@ const aos5 = async (bot, chat_id, _id, text) => {
     await updateItem({_id: items[i]}, {step: 4, status: 'approved'})
   }
 
-  await updateEmployee({_id}, {is_idler: true})
+  await updateEmployee({_id: employee._id}, {is_idler: true})
 
   await bot.sendMessage(employee.telegram_id, "Sizda yangi yetkazib berish kerak bo'lgan buyurtma bor")
 

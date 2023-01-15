@@ -13,9 +13,13 @@ db.once('open', () => {
     logger.info('DB: mongo db connection is established')
 })
 
+console.log(config.Username)
+
 export default class Database {
     // url = `mongodb://localhost:${config.MongoPort}/${config.MongoDatabase}`
-    url = `mongodb+srv://nyunusov:necshuhrat@nonproject.ygnkhxi.mongodb.net/?retryWrites=true&w=majority`
+    url = `mongodb+srv://${config.Username}:${config.Password}@${config.MongoDatabase}.ygnkhxi.mongodb.net/?retryWrites=true&w=majority`
+    // url = mongodb+srv://nyunusov:necshuhrat@nonproject.ygnkhxi.mongodb.net/?retryWrites=true&w=majority
+
 
     constructor() {
         logger.info(`DB: DATABASE URL: ${this.url}`)

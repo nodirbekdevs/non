@@ -22,7 +22,7 @@ export interface IOrder extends Document {
     step: number
     attempt: number
     status: string
-    delivered_at: Date
+    received_at: Date
     created_at: Date
 }
 
@@ -106,7 +106,7 @@ const orderSchema = new Schema({
         enum: ['process', 'inactive', 'active', 'approved', 'out_of_delivery', 'delivered', 'accepted'],
         default: 'process'
     },
-    delivered_at: {
+    received_at: {
         type: Date
     },
     created_at: {

@@ -522,7 +522,7 @@ const uos19 = async (bot, chat_id, lang, _id) => {
   const kbb = (lang === kb.language.uz) ? keyboard.user.orders.uz : keyboard.user.orders.ru, order = await getOrder({_id})
 
   if (order.status === 'active') {
-    await updateOrder({_id}, {step: 13, attempt: 2, status: 'accepted'})
+    await updateOrder({_id}, {step: 12, attempt: 2, status: 'accepted', received_at: Date.now()})
 
     const items = order.items
 

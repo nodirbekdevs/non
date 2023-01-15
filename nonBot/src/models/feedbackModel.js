@@ -9,6 +9,7 @@ const Feedback = model('Feedback', new Schema({
   mark: {type: String, default: ''},
   reason: {type: String, default: ''},
   action: {type: String, enum: ['process', 'seen', 'done'], default: 'process'},
+  is_read: {type: Boolean, default: false},
   step: {type: Number, default: 0},
   status: {type: String, enum: ['process', 'inactive', 'active'], default: 'process'},
   created_at: {type: Date, default: Date.now}

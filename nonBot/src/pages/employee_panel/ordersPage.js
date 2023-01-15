@@ -45,8 +45,9 @@ const eos2 = async (bot, chat_id, _id) => {
   user_info += `Ismi: ${user.name}\n`
   user_info += `Telefon raqami: +${user.number}`
 
-  employee_info += `Yetkazib beruvchi`
-  employee_info += `Ismi: ${employee.name}`
+  employee_info += "Buyurtmangiz yo'lga chiqti\n"
+  employee_info += `\nYetkazib beruvchi\n`
+  employee_info += `Ismi: ${employee.name}\n`
   employee_info += `Telefon raqami: +${employee.number}`
 
   send_admin += message
@@ -73,7 +74,7 @@ const eos3 = async (bot, chat_id, _id) => {
 const eos4 = async (bot, chat_id, _id, text) => {
   let total = 0
 
-  await updateOrder({_id}, {signature: text, step: 12, status: 'delivered'})
+  await updateOrder({_id}, {signature: text, step: 12, status: 'delivered', received_at: Date.now()})
 
   const order = await getOrder({_id}), user = await getUser({telegram_id: order.author}),
     employee = await getEmployee({telegram_id: chat_id}), items = order.items
@@ -100,7 +101,7 @@ const eos4 = async (bot, chat_id, _id, text) => {
     employee.orders.push(order._id)
     employee.total_orders += 1
     employee.num_of_delivered_product += total
-    employee.is_idle = false
+    employee.is_idler = false
     await employee.save()
   }
 

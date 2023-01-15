@@ -92,7 +92,7 @@ export class OrderController {
             }
 
             if (status === 'accepted') {
-                await storage.order.update({ _id }, {step: 13, attempt: 2, delivered_at: Date.now()})
+                await storage.order.update({ _id }, {step: 13, attempt: 2, received_at: Date.now()})
 
                 const items = order.items
 
